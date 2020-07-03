@@ -50,3 +50,21 @@ body {
     transform: skewY(-30deg) rotate(60deg);
     overflow: hidden;
 }
+
+#grid li:nth-child(3n+2) {
+    margin: 0 1%;
+}
+
+#grid li:nth-child(6n+4) { 
+    margin-left: 0.5%;
+}
+
+#grid li:nth-child(6n+4), #grid li:nth-child(6n+5), #grid li:nth-child(6n+6) {
+    margin-top: -6.9285714285%;
+    margin-bottom: -6.9285714285%;
+    -o-transform: translateX(50%) rotate(-60deg) skewY(30deg);
+    -moz-transform: translateX(50%) rotate(-60deg) skewY(30deg);
+    -webkit-transform: translateX(50%) rotate(-60deg) skewY(30deg);
+    -ms-transform: translateX(50%) rotate(-60deg) skewY(30deg);
+    transform: translateX(50%) rotate(-60deg) skewY(30deg);
+}

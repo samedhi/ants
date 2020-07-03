@@ -5,6 +5,8 @@
 
 (defn component []
   [:ul {:id :grid :class :clear}
-   [:li
-    [:div {:class :hexagon}]]])
+   (for [i (range 10)]
+     ^{:key i}
+     [:li
+      [:div {:class :hexagon}]])])
 
