@@ -9,13 +9,12 @@ body {
 }
 
 .row {
+    position: relative;
     display: flex;
     align-content: stretch;
-    background-color: pink;
 }
 
 .column {
-    background-color: red;
     flex-grow: 1;
 }
 
@@ -51,14 +50,6 @@ body {
     -ms-transform: skewY(-30deg) rotate(60deg);
     transform: skewY(-30deg) rotate(60deg);
     overflow: hidden;
-}
-
-#grid li:nth-child(3n+2) {
-    margin: 0 1%;
-}
-
-#grid li:nth-child(6n+4) { 
-    margin-left: 0.5%;
 }
 
 #grid li:nth-child(6n+4), #grid li:nth-child(6n+5), #grid li:nth-child(6n+6) {
