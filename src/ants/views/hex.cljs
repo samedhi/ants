@@ -4,9 +4,13 @@
    [ants.mui :as mui]))
 
 (defn component []
-  [:ul {:id :grid :class :clear}
-   (for [i (range 10)]
-     ^{:key i}
-     [:li
-      [:div {:class :hexagon}]])])
+  [:div {:id :grid :class :clear}
+   (for [row-i (range 1)]
+     ^{:key row-i}
+     [:div {:class :row}
+      (for [col-i (range 10)]
+        ^{:key (str "row-" row-i ":col-" col-i)}
+        [:div {:class :column}
+         [:li
+          [:div {:class :hexagon}]]])])])
 
