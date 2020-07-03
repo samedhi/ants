@@ -1,8 +1,8 @@
-(ns firemore-start-template.views.util
+(ns ants.views.util
   (:require
    [re-frame.core :as re-frame]
-   [firemore-start-template.mui :as mui]
-   [firemore-start-template.subs :as subs]))
+   [ants.mui :as mui]
+   [ants.subs :as subs]))
 
 (defn code-block [o]
   [:pre {:class "code-block"}

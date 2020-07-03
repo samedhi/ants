@@ -1,4 +1,4 @@
-(ns firemore-start-template.config)
+(ns ants.config)
 
 (def breakpoints
   {:breakpoints [:mobile        768
@@ -7,4 +7,4 @@
                  :large-monitor     ]
    :debounce-ms 166})
 
-(def default-db {:greeting "Welcome to the firemore-start-template app!"})
+(def default-db {:greeting "Welcome to the ants app!"})

@@ -4,9 +4,9 @@
 # lets clear out your target in case you have already built
 rm -rf target
 
-# Initially, old will be firemore-start-template, but this will be modified as you call
+# Initially, old will be ants, but this will be modified as you call
 # this script.
-old='firemore-start-template'
+old='ants'
 new=$1
 underscored_old=$(sed 's/-/_/g' <<< $old)
 underscored_new=$(sed 's/-/_/g' <<< $new)

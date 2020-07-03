@@ -1,4 +1,4 @@
-(ns firemore-start-template.util
+(ns ants.util
   (:require
    [cljs.pprint :as pprint]))
 

@@ -1,13 +1,13 @@
-(ns ^:figwheel-hooks firemore-start-template.core
+(ns ^:figwheel-hooks ants.core
   (:require
    [firemore.core :as firemore]
    [goog.dom :as goog.dom]
    [reagent.dom :as reagent.dom]
    [re-frame.core :as re-frame]
-   [firemore-start-template.breakpoints :as breakpoints]
-   [firemore-start-template.events :as events]
-   [firemore-start-template.subs :as subs]
-   [firemore-start-template.views.root :as root]))
+   [ants.breakpoints :as breakpoints]
+   [ants.events :as events]
+   [ants.subs :as subs]
+   [ants.views.root :as root]))
 
 (defn mount-root []
   (when-let [el (goog.dom/getElement "app")]

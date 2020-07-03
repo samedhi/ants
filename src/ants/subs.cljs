@@ -1,7 +1,7 @@
-(ns firemore-start-template.subs
+(ns ants.subs
   (:require
    [re-frame.core :as re-frame]
-   [firemore-start-template.util :as util]))
+   [ants.util :as util]))
 
 (re-frame/reg-sub
  :greeting

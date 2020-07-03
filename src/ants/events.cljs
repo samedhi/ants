@@ -1,7 +1,7 @@
-(ns firemore-start-template.events
+(ns ants.events
   (:require
    [re-frame.core :as re-frame]
-   [firemore-start-template.config :as config]))
+   [ants.config :as config]))
 
 (re-frame/reg-event-db
  :initialize-db

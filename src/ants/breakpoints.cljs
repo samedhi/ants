@@ -1,8 +1,8 @@
-(ns firemore-start-template.breakpoints
+(ns ants.breakpoints
   (:require
    [breaking-point.core :as bp]
    [re-frame.core :as re-frame]
-   [firemore-start-template.config :as config]))
+   [ants.config :as config]))
 
 (def previous-breakpoints (atom nil))
 

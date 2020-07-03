@@ -1,9 +1,10 @@
-(ns firemore-start-template.views.root
+(ns ants.views.root
   (:require
    [re-frame.core :as re-frame]
-   [firemore-start-template.mui :as mui]
-   [firemore-start-template.views.util :as views.util]
-   [firemore-start-template.util :as util]))
+   [ants.mui :as mui]
+   [ants.views.hex :as hex]
+   [ants.views.util :as views.util]
+   [ants.util :as util]))
 
 (defn title []
   (let [greeting @(re-frame/subscribe [:greeting])]
@@ -16,5 +17,6 @@
   [mui/container
    {:max-width "xl"}
    [title]
+   [hex/component]
    [views.util/app-db-viewer]
    [views.util/footer]])
