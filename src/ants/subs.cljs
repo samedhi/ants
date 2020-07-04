@@ -14,23 +14,21 @@
    (util/pprint db)))
 
 (re-frame/reg-sub
- :q-max
- (fn [db]
-   (:q-max db)))
+ :row-count
+ :row-count)
 
 (re-frame/reg-sub
- :rows-count
- :<- [:q-max]
- (fn [q-max]
-   (dec (* 2 q-max))))
+ :column-count
+ :column-count)
 
 (re-frame/reg-sub
- :r-max
- (fn [db]
-   (:r-max db)))
+ :ant-at-tile
+ (fn [db [_ coordinate]]
+   (-> db :ants (get coordinate))))
 
 (re-frame/reg-sub
- :columns-count
- :<- [:r-max]
- (fn [r-max]
-   (dec (* 2 r-max))))
+ :tile-state
+ (fn [[_ coordinate] _]
+   (re-frame/subscribe [:ant-at-tile coordinate]))
+ (fn [tile-state _]
+   tile-state))
