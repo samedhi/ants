@@ -7,4 +7,5 @@
                  :large-monitor     ]
    :debounce-ms 166})
 
-(def default-db {:greeting "Welcome to the ants app!"})
+(def default-db {:q-max 3
+                 :r-max 4})

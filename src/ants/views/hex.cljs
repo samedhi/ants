@@ -38,8 +38,8 @@
        [image images/ant-walk :southwest x y]]]]))
 
 (defn component []
-  (let [row-count 5
-        column-count 5]
+  (let [row-count @(re-frame/subscribe [:rows-count])
+        column-count @(re-frame/subscribe [:columns-count])]
     [:div {:id :grid :class :clear}
      (for [row-i (range row-count)]
        ^{:key row-i}
