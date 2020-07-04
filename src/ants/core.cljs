@@ -7,6 +7,7 @@
    [ants.ant]
    [ants.breakpoints :as breakpoints]
    [ants.events :as events]
+   [ants.movement]
    [ants.subs :as subs]
    [ants.views.root :as root]))
 
