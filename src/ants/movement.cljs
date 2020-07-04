@@ -16,11 +16,19 @@
 
 (defn remove-off-plane-coordinates [coordinates row-count column-count]
   (->> coordinates
-       (filter #(<= -1 (first %) row-count))
-       (filter #(<= -1 (second %) column-count))))
+       (filter #(< -1 (first %) row-count))
+       (filter #(< -1 (second %) column-count))))
 
-(defn options [db coordinate facing]
+(defn move-options [db coordinate facing]
   (let [{:keys [row-count column-count]} db]
     (-> coordinate
         (blind-options facing)
         (remove-off-plane-coordinates row-count column-count))))
+
+(defn rotate-options [facing]
+  (let [[left _ right] (config/facing->potentials facing)]
+    [left right]))
+
+(defn events [db coordinate facing]
+  (or (map #(vector [:move coordinate %]) (move-options db coordinate facing))
+      (map #(vector [:rotate coordinate %]) (rotate-options facing))))
