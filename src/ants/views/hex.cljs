@@ -44,5 +44,5 @@
                       (when (odd? row-i) {:right (str (/ 100 column-count 2) "%")}))}
         (for [col-i (range column-count)]
           ^{:key (str "row-" row-i ":col-" col-i)}
-          [tile [col-i row-i]])])]))
+          [tile [row-i col-i]])])]))
 
