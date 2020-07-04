@@ -22,9 +22,14 @@
  :column-count)
 
 (re-frame/reg-sub
+ :ants
+ :ants)
+
+(re-frame/reg-sub
  :ant-at-tile
- (fn [db [_ coordinate]]
-   (-> db :ants (get coordinate))))
+ :-> [:ants]
+ (fn [ants [_ coordinate]]
+   (get ants coordinate)))
 
 (re-frame/reg-sub
  :tile-state
