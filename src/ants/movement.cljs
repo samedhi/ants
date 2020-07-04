@@ -8,8 +8,19 @@
                                       first
                                       even?
                                       {true :even false :odd}
-                                      config/potential->coordinate-deltas)]
+                                      config/even-row->facing->coordinate-delta)]
     (->> facing
          config/facing->potentials
          (map facing->coordinate-deltas)
          (map (fn [[x-delta y-delta]] [(+ x-old x-delta) (+ y-old y-delta)])))))
+
+(defn remove-off-plane-coordinates [coordinates row-count column-count]
+  (->> coordinates
+       (filter #(<= -1 (first %) row-count))
+       (filter #(<= -1 (second %) column-count))))
+
+(defn options [db coordinate facing]
+  (let [{:keys [row-count column-count]} db]
+    (-> coordinate
+        (blind-options facing)
+        (remove-off-plane-coordinates row-count column-count))))

@@ -23,7 +23,7 @@
    :west [:southwest :west :northwest]
    :northwest [:west :northwest :northeast]})
 
-(def even->facing->coordinate-delta
+(def even-row->facing->coordinate-delta
   {:even {:northeast [-1 1]
           :east [0 1]
           :southeast [1 1]
