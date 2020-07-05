@@ -30,5 +30,5 @@
     [left right]))
 
 (defn events [db coordinate facing]
-  (or (map #(vector [:move coordinate %]) (move-options db coordinate facing))
-      (map #(vector [:rotate coordinate %]) (rotate-options facing))))
+  (or (seq (map #(vector :move coordinate % :northeast) (move-options db coordinate facing)))
+      (map #(vector :rotate coordinate %) (rotate-options facing))))
