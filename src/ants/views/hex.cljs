@@ -30,7 +30,8 @@
      [:li
       [:div {:class :hexagon}
        (when facing
-         [image images/ant-walk facing coordinate])]]]))
+         (let [[x y] coordinate]
+           [image images/ant-walk facing [(mod x 7) (mod y 8)]]))]]]))
 
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])
