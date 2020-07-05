@@ -31,7 +31,7 @@
 
 (re-frame/reg-sub
  :ant-at-tile
- :-> [:ants]
+ :<- [:ants]
  (fn [ants [_ coordinate]]
    (get ants coordinate)))
 
