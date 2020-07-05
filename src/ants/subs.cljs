@@ -26,6 +26,10 @@
  :ants)
 
 (re-frame/reg-sub
+ :time-between-ticks
+ :time-between-ticks)
+
+(re-frame/reg-sub
  :ant-at-tile
  :-> [:ants]
  (fn [ants [_ coordinate]]

@@ -6,6 +6,7 @@
    [re-frame.core :as re-frame]
    [ants.ant]
    [ants.breakpoints :as breakpoints]
+   [ants.cycle]
    [ants.events :as events]
    [ants.movement]
    [ants.subs :as subs]

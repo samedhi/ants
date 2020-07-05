@@ -39,4 +39,5 @@
 
 (def default-db {:row-count 3
                  :column-count 5
+                 :time-between-ticks 500;; milliseconds
                  :ants {[2 2] {:facing :northeast}}})
