@@ -33,10 +33,6 @@
  (fn [_ _]
    config/default-db))
 
-(defn println-pass [o]
-  (println :ant-options-> o)
-  o)
-
 (re-frame/reg-event-fx
  :tick
  (fn [{:keys [db]} _]
@@ -44,5 +40,4 @@
     (->> db
          :ants
          (map (fn [[coordinate {:keys [facing]}]] (movement/events db coordinate facing)))
-         println-pass
          (mapv rand-nth))}))
