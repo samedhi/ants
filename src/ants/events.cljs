@@ -16,7 +16,7 @@
 (defn conj-step [ants old-coordinate]
   (as-> ants $
     (get $ old-coordinate)
-    (dissoc $ :steps)
+    (select-keys $ [:facing])
     (assoc $ :coordinate old-coordinate)
     (update-in ants [old-coordinate :steps] (fnil conj []) $)))
 
@@ -37,6 +37,16 @@
  :rotate
  (fn [db [_ coordinate new-facing]]
    (update-in db [:ants coordinate] assoc :facing new-facing)))
+
+(re-frame/reg-event-db
+ :reverse
+ (fn [db [_ coordinate]]
+   (update-in db [:ants coordinate :reversed?] not)))
+
+(re-frame/reg-event-db
+ :reset
+ (fn [db [_ coordinate]]
+   (update-in db [:ants coordinate] dissoc :steps :reversed?)))
 
 (re-frame/reg-event-db
  :initialize-db

@@ -41,5 +41,5 @@
 (def default-db {:row-count 3
                  :column-count 5
                  :time-between-ticks 500;; milliseconds
-                 :entrances #{[0 0]}
-                 :ants {[2 2] {:facing :northeast}}})
+                 :entrences #{[0 0]}
+                 :ants {[2 2] {:facing :northeast :max-steps 10}}})

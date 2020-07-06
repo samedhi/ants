@@ -26,11 +26,11 @@
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
-        {:keys [facing entrance?] :as state} tile-state]
+        {:keys [facing entrence?] :as state} tile-state]
     [:div {:class :column}
      [:li
       [:div {:class :hexagon}
-       (when entrance?
+       (when entrence?
          [:div {:style {:position :absolute
                         :width "100%"
                         :height "100%"}}

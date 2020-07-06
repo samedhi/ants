@@ -38,6 +38,21 @@
   (let [[left _ right] (config/facing->potentials facing)]
     [left right]))
 
+(defn special-actions [db coordinate]
+  (let [{:keys [max-steps steps reversed?]} (-> db :ants (get coordinate))]
+    (cond
+      ;; TODO: When picked up food
+
+      (and (not reversed?) (<= max-steps (count steps)))
+      [[:reverse coordinate]]
+
+      ;; TODO: When holding food over colony
+
+      ;; When over colony
+      (and reversed? (contains? (:entrences db) coordinate))
+      [[:reset coordinate]])))
+
 (defn events [db coordinate facing]
-  (or (seq (map move-option->event (move-options db coordinate facing)))
+  (or (special-actions db coordinate)
+      (seq (map move-option->event (move-options db coordinate facing)))
       (map #(vector :rotate coordinate %) (rotate-options facing))))

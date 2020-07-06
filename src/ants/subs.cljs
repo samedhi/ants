@@ -30,8 +30,8 @@
  :time-between-ticks)
 
 (re-frame/reg-sub
- :entrances
- :entrances)
+ :entrences
+ :entrences)
 
 (re-frame/reg-sub
  :ant-at-tile
@@ -43,8 +43,8 @@
  :tile-state
  (fn [[_ coordinate] _]
    [(re-frame/subscribe [:ant-at-tile coordinate])
-    (re-frame/subscribe [:entrances])])
- (fn [[ant entrances] [_ coordinate]]
+    (re-frame/subscribe [:entrences])])
+ (fn [[ant entrences] [_ coordinate]]
    (merge ant
-          (when (contains? entrances coordinate)
-            {:entrance? true}))))
+          (when (contains? entrences coordinate)
+            {:entrence? true}))))
