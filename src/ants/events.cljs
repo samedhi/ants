@@ -13,8 +13,16 @@
 (defn rename-key [m k-old k-new]
   (set/rename-keys m {k-old k-new}))
 
+(defn conj-step [ants old-coordinate]
+  (as-> ants $
+    (get $ old-coordinate)
+    (dissoc $ :steps)
+    (assoc $ :coordinate old-coordinate)
+    (update-in ants [old-coordinate :steps] (fnil conj []) $)))
+
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
+      (conj-step old-coordinate)
       (rename-key old-coordinate new-coordinate)
       (update new-coordinate assoc :facing new-facing)))
 
