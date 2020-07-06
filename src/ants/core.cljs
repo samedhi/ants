@@ -4,7 +4,6 @@
    [goog.dom :as goog.dom]
    [reagent.dom :as reagent.dom]
    [re-frame.core :as re-frame]
-   [ants.ant]
    [ants.breakpoints :as breakpoints]
    [ants.cycle]
    [ants.events :as events]
