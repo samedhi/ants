@@ -7,12 +7,12 @@
 
 (defn image
   ([image-map]
-   (image image-map :northeast))
+   (image image-map :none))
   ([image-map facing]
    (image image-map facing [0 0]))
   ([image-map facing coordinate]
    (let [[row column] coordinate
-         {:keys [src width height rows columns] :or {:rows 1 :columns 1}} image-map
+         {:keys [src width height rows columns] :or {rows 1 columns 1}} image-map
          section-width (/ width columns)
          section-height (/ height rows)]
      [:div {:class :img-container
@@ -25,10 +25,16 @@
                      :width (str columns "00%")}}]])))
 
 (defn tile [coordinate]
-  (let [{:keys [facing] :as state} @(re-frame/subscribe [:tile-state coordinate])]
+  (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
+        {:keys [facing entrance?] :as state} tile-state]
     [:div {:class :column}
      [:li
       [:div {:class :hexagon}
+       (when entrance?
+         [:div {:style {:position :absolute
+                        :width "100%"
+                        :height "100%"}}
+          [image images/mound]])
        (when facing
          (let [[x y] coordinate]
            [image images/ant-walk facing [(mod x 7) (mod y 8)]]))]]]))

@@ -8,7 +8,8 @@
    :debounce-ms 166})
 
 (def facing->degrees
-  {:northeast 30
+  {:none 0
+   :northeast 30
    :east 90
    :southeast 150
    :southwest 210
@@ -40,4 +41,5 @@
 (def default-db {:row-count 3
                  :column-count 5
                  :time-between-ticks 500;; milliseconds
+                 :entrances #{[0 0]}
                  :ants {[2 2] {:facing :northeast}}})
