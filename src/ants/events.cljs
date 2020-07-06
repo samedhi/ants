@@ -21,7 +21,9 @@
 (re-frame/reg-event-db
  :move
  (fn [db [_ old-coordinate new-coordinate new-facing]]
-   (update db :ants move-ant old-coordinate new-coordinate new-facing)))
+   (if (-> db :ants (contains? new-coordinate))
+     db
+     (update db :ants move-ant old-coordinate new-coordinate new-facing))))
 
 (re-frame/reg-event-db
  :rotate

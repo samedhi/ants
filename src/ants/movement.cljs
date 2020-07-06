@@ -21,11 +21,15 @@
        (filter #(< -1 (:x %) row-count))
        (filter #(< -1 (:y %) column-count))))
 
+(defn remove-collisions [coordinates ants]
+  (remove #(contains? ants [(:x %) (:y %)]) coordinates))
+
 (defn move-options [db coordinate facing]
-  (let [{:keys [row-count column-count]} db]
+  (let [{:keys [row-count column-count ants]} db]
     (-> coordinate
         (blind-options facing)
-        (remove-off-plane-coordinates row-count column-count))))
+        (remove-off-plane-coordinates row-count column-count)
+        (remove-collisions ants))))
 
 (defn move-option->event [{:keys [x y facing coordinate]}]
   [:move coordinate [x y] facing])
