@@ -63,12 +63,18 @@
        (update-in [:ants coordinate] dissoc :steps :reversed?)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
+(defn harvested-handler [db coordinate]
+  (if (-> db :food (get coordinate) zero?)
+    (update db :food dissoc coordinate)
+    db))
+
 (re-frame/reg-event-db
  :grab-food
  (fn [db [_ coordinate]]
    (-> db
        (assoc-in [:ants coordinate :has-food?] true)
-       (update-in [:food coordinate] dec))))
+       (update-in [:food coordinate] dec)
+       (harvested-handler coordinate))))
 
 (re-frame/reg-event-db
  :drop-food
@@ -81,9 +87,6 @@
  :initialize-db
  (fn [_ _]
    config/default-db))
-
-(defn ant-events [db [coordinate ant]]
-  )
 
 (re-frame/reg-event-fx
  :tick
