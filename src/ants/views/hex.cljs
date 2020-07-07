@@ -26,7 +26,7 @@
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
-        {:keys [facing entrence? food] :as state} tile-state]
+        {:keys [facing entrence? food has-food?] :as state} tile-state]
     [:div {:class :column}
      [:li
       [:div {:class (conj [:hexagon] (when (pos? food) :food))}
@@ -44,8 +44,9 @@
                         :justify-content :center}}
           [mui/typography food]])
        (when facing
-         (let [[x y] coordinate]
-           [image images/ant-walk facing [(mod x 7) (mod y 8)]]))]]]))
+         (let [[x y] coordinate
+               ant-image (if has-food? images/ant-walk-with-food images/ant-walk)]
+           [image ant-image facing [(mod x 7) (mod y 8)]]))]]]))
 
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])
