@@ -26,15 +26,23 @@
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
-        {:keys [facing entrence?] :as state} tile-state]
+        {:keys [facing entrence? food] :as state} tile-state]
     [:div {:class :column}
      [:li
-      [:div {:class :hexagon}
+      [:div {:class (conj [:hexagon] (when (pos? food) :food))}
        (when entrence?
          [:div {:style {:position :absolute
                         :width "100%"
                         :height "100%"}}
           [image images/mound]])
+       (when (pos? food)
+         [:div {:style {:position :absolute
+                        :width "100%"
+                        :height "100%"
+                        :display :flex
+                        :align-items :center
+                        :justify-content :center}}
+          [mui/typography food]])
        (when facing
          (let [[x y] coordinate]
            [image images/ant-walk facing [(mod x 7) (mod y 8)]]))]]]))

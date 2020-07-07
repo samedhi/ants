@@ -62,6 +62,10 @@ body {
     overflow: hidden;
 }
 
+#grid li .food {
+    background: #88B04B;
+}
+
 #grid li:nth-child(6n+4), #grid li:nth-child(6n+5), #grid li:nth-child(6n+6) {
     margin-top: -6.9285714285%;
     margin-bottom: -6.9285714285%;

@@ -34,6 +34,10 @@
  :entrences)
 
 (re-frame/reg-sub
+ :food
+ :food)
+
+(re-frame/reg-sub
  :ant-at-tile
  :<- [:ants]
  (fn [ants [_ coordinate]]
@@ -43,8 +47,10 @@
  :tile-state
  (fn [[_ coordinate] _]
    [(re-frame/subscribe [:ant-at-tile coordinate])
-    (re-frame/subscribe [:entrences])])
- (fn [[ant entrences] [_ coordinate]]
+    (re-frame/subscribe [:entrences])
+    (re-frame/subscribe [:food])])
+ (fn [[ant entrences food] [_ coordinate]]
    (merge ant
+          {:food (food coordinate 0)}
           (when (contains? entrences coordinate)
             {:entrence? true}))))
