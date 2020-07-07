@@ -7,6 +7,14 @@
                  :large-monitor     ]
    :debounce-ms 166})
 
+(def facing->reverse-facing
+  {:northeast :southwest
+   :east :west
+   :southeast :northwest
+   :southwest :northeast
+   :west :east
+   :northwest :southeast})
+
 (def facing->degrees
   {:none 0
    :northeast 30

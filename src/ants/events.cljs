@@ -40,8 +40,9 @@
 (re-frame/reg-event-db
  :reverse-move
  (fn [db [_ old-coordinate]]
-   (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)]
-     (move db [:move old-coordinate coordinate facing]))))
+   (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)
+         reverse-facing (config/facing->reverse-facing facing)]
+     (move db [:move old-coordinate coordinate reverse-facing]))))
 
 (re-frame/reg-event-db
  :rotate
@@ -51,12 +52,16 @@
 (re-frame/reg-event-db
  :reverse
  (fn [db [_ coordinate]]
-   (update-in db [:ants coordinate :reversed?] not)))
+   (-> db
+       (update-in [:ants coordinate :reversed?] not)
+       (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
 (re-frame/reg-event-db
  :reset
  (fn [db [_ coordinate]]
-   (update-in db [:ants coordinate] dissoc :steps :reversed?)))
+   (-> db
+       (update-in [:ants coordinate] dissoc :steps :reversed?)
+       (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
 (re-frame/reg-event-db
  :initialize-db
