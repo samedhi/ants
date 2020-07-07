@@ -39,17 +39,20 @@
     [left right]))
 
 (defn special-actions [db coordinate]
-  (let [{:keys [max-steps steps reversed?]} (-> db :ants (get coordinate))]
+  (let [{:keys [max-steps steps reversed?] :as ant} (-> db :ants (get coordinate))
+        over-colony? (contains? (:entrences db) coordinate)
+        steps-count (count steps)]
     (cond
-      ;; TODO: When picked up food
+
+      ;; When reverse walking
+      (and reversed? (pos? steps-count))
+      [[:reverse-move coordinate]]
 
       (and (not reversed?) (<= max-steps (count steps)))
       [[:reverse coordinate]]
 
-      ;; TODO: When holding food over colony
-
       ;; When over colony
-      (and reversed? (contains? (:entrences db) coordinate))
+      (and over-colony? (or reversed? (pos? steps-count)))
       [[:reset coordinate]])))
 
 (defn events [db coordinate facing]

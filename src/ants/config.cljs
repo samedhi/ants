@@ -42,4 +42,4 @@
                  :column-count 5
                  :time-between-ticks 500;; milliseconds
                  :entrences #{[0 0]}
-                 :ants {[2 2] {:facing :northeast :max-steps 10}}})
+                 :ants {[0 0] {:facing :northeast :max-steps 10}}})

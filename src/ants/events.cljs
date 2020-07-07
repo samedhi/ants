@@ -13,25 +13,35 @@
 (defn rename-key [m k-old k-new]
   (set/rename-keys m {k-old k-new}))
 
-(defn conj-step [ants old-coordinate]
-  (as-> ants $
-    (get $ old-coordinate)
-    (select-keys $ [:facing])
-    (assoc $ :coordinate old-coordinate)
-    (update-in ants [old-coordinate :steps] (fnil conj []) $)))
+(defn modify-steps [ants coordinate]
+  (let [{:keys [reversed?] :as ant} (get ants coordinate)
+        new-ant (as-> ant $
+                  (select-keys $ [:facing])
+                  (assoc $ :coordinate coordinate))]
+    (if reversed?
+      (update-in ants [coordinate :steps] pop)
+      (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
-      (conj-step old-coordinate)
+      (modify-steps old-coordinate)
       (rename-key old-coordinate new-coordinate)
       (update new-coordinate assoc :facing new-facing)))
 
+(defn move [db [_ old-coordinate new-coordinate new-facing]]
+  (if (-> db :ants (contains? new-coordinate))
+    db
+    (update db :ants move-ant old-coordinate new-coordinate new-facing)))
+
 (re-frame/reg-event-db
  :move
- (fn [db [_ old-coordinate new-coordinate new-facing]]
-   (if (-> db :ants (contains? new-coordinate))
-     db
-     (update db :ants move-ant old-coordinate new-coordinate new-facing))))
+ move)
+
+(re-frame/reg-event-db
+ :reverse-move
+ (fn [db [_ old-coordinate]]
+   (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)]
+     (move db [:move old-coordinate coordinate facing]))))
 
 (re-frame/reg-event-db
  :rotate
