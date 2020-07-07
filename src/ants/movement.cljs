@@ -24,29 +24,36 @@
 (defn remove-collisions [coordinates ants]
   (remove #(contains? ants [(:x %) (:y %)]) coordinates))
 
-(defn move-options [db coordinate facing]
-  (let [{:keys [row-count column-count ants]} db]
-    (-> coordinate
-        (blind-options facing)
-        (remove-off-plane-coordinates row-count column-count)
-        (remove-collisions ants))))
-
-(defn move-option->event [{:keys [x y facing coordinate]}]
+(defn move-option->event [{:keys [x y facing coordinate] :as move-option}]
   [:move coordinate [x y] facing])
 
-(defn rotate-options [facing]
+(defn permissive-rand-nth [xs]
+  (when (-> xs count pos?)
+    (rand-nth xs)))
+
+(defn move-options [db coordinate facing]
+  (let [{:keys [row-count column-count ants]} db]
+    (some-> coordinate
+            (blind-options facing)
+            (remove-off-plane-coordinates row-count column-count)
+            (remove-collisions ants)
+            permissive-rand-nth
+            move-option->event
+            vector)))
+
+(defn rotate-options [coordinate facing]
   (let [[left _ right] (config/facing->potentials facing)]
-    [left right]))
+    (if (zero? (rand-int 2))
+      [[:rotate coordinate left]]
+      [[:rotate coordinate right]])))
 
 (defn special-actions [db coordinate]
-  (let [{:keys [max-steps steps reversed?] :as ant} (-> db :ants (get coordinate))
-        over-colony? (contains? (:entrences db) coordinate)
-        steps-count (count steps)
-        has-food? false
-        over-food? false]
+  (let [{:keys [max-steps steps reversed? has-food?] :as ant} (-> db :ants (get coordinate))
+        {:keys [food entrences]} db
+        over-colony? (contains? entrences coordinate)
+        over-food? (contains? food coordinate)
+        steps-count (count steps)]
     (cond
-
-      ;; When reverse walking
       (and reversed? (pos? steps-count))
       [[:reverse-move coordinate]]
 
@@ -65,7 +72,8 @@
       (and over-colony? (pos? steps-count))
       [[:reset coordinate]])))
 
-(defn events [db coordinate facing]
-  (or (special-actions db coordinate)
-      (seq (map move-option->event (move-options db coordinate facing)))
-      (map #(vector :rotate coordinate %) (rotate-options facing))))
+(defn events [db coordinate ant]
+  (let [{:keys [facing]} ant]
+    (or (special-actions db coordinate)
+        (move-options db coordinate facing)
+        (rotate-options coordinate facing))))

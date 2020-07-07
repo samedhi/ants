@@ -64,9 +64,26 @@
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
 (re-frame/reg-event-db
+ :grab-food
+ (fn [db [_ coordinate]]
+   (-> db
+       (assoc-in [:ants coordinate :has-food?] true)
+       (update-in [:food coordinate] dec))))
+
+(re-frame/reg-event-db
+ :drop-food
+ (fn [db [_ coordinate]]
+   (-> db
+       (update-in [:ants coordinate] dissoc :has-food?)
+       (update :colony-food (fnil inc 0)))))
+
+(re-frame/reg-event-db
  :initialize-db
  (fn [_ _]
    config/default-db))
+
+(defn ant-events [db [coordinate ant]]
+  )
 
 (re-frame/reg-event-fx
  :tick
@@ -74,5 +91,6 @@
    {:dispatch-n
     (->> db
          :ants
-         (map (fn [[coordinate {:keys [facing]}]] (movement/events db coordinate facing)))
-         (mapv rand-nth))}))
+         (map (fn [[coordinate ant]]
+                (movement/events db coordinate ant)))
+         (apply concat))}))
