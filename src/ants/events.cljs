@@ -92,10 +92,9 @@
 (defn decay-pheromone [tick pheromone]
   (reduce-kv
    (fn [m k v]
-     (println :decay-pheromone k v)
      (if (<= v 0.25)
        (dissoc m k)
-       (update m k / 2)))
+       (update m k * 0.9)))
      pheromone
      pheromone))
 
