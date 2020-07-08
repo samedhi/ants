@@ -46,9 +46,11 @@
          :west [0 -1]
          :northwest [-1 -1]}})
 
-(def default-db {:row-count 3
+(def default-db {:tick 0
+                 :row-count 3
                  :column-count 5
                  :time-between-ticks 1000;; milliseconds
+                 :pheromones {}
                  :food {[2 4] 10}
                  :entrences #{[0 0]}
                  :ants {[0 0] {:facing :northeast :max-steps 10}}})

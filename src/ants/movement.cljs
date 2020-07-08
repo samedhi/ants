@@ -54,6 +54,9 @@
         over-food? (contains? food coordinate)
         steps-count (count steps)]
     (cond
+      (and reversed? has-food? (pos? steps-count))
+      [[:drop-pheromone coordinate] [:reverse-move coordinate]]
+
       (and reversed? (pos? steps-count))
       [[:reverse-move coordinate]]
 

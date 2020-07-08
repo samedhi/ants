@@ -38,6 +38,12 @@
  move)
 
 (re-frame/reg-event-db
+ :drop-pheromone
+ (fn [db [_ coordinate]]
+   (let [{:keys [tick]} db]
+     (assoc-in db [:pheromones coordinate tick] 1))))
+
+(re-frame/reg-event-db
  :reverse-move
  (fn [db [_ old-coordinate]]
    (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)
@@ -91,9 +97,13 @@
 (re-frame/reg-event-fx
  :tick
  (fn [{:keys [db]} _]
-   {:dispatch-n
-    (->> db
-         :ants
-         (map (fn [[coordinate ant]]
-                (movement/events db coordinate ant)))
-         (apply concat))}))
+   (let [new-db (update db :tick inc)]
+     {:db
+      new-db
+
+      :dispatch-n
+      (->> db
+           :ants
+           (map (fn [[coordinate ant]]
+                  (movement/events new-db coordinate ant)))
+           (apply concat))})))
