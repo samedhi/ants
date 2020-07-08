@@ -41,7 +41,7 @@
  :drop-pheromone
  (fn [db [_ coordinate]]
    (let [{:keys [tick]} db]
-     (assoc-in db [:pheromones coordinate tick] 1))))
+     (assoc-in db [:pheromones coordinate tick] 10))))
 
 (re-frame/reg-event-db
  :reverse-move
@@ -89,6 +89,25 @@
        (update-in [:ants coordinate] dissoc :has-food?)
        (update :colony-food (fnil inc 0)))))
 
+(defn decay-pheromone [tick pheromone]
+  (reduce-kv
+   (fn [m k v]
+     (println :decay-pheromone k v)
+     (if (<= v 0.25)
+       (dissoc m k)
+       (update m k / 2)))
+     pheromone
+     pheromone))
+
+(defn decay-coordinate [tick m coordinate pheromone]
+  (assoc m coordinate (decay-pheromone tick pheromone)))
+
+(re-frame/reg-event-db
+ :decay
+ (fn [db _]
+   (let [{:keys [tick]} db]
+     (update db :pheromones #(reduce-kv (partial decay-coordinate tick) {} %)))))
+
 (re-frame/reg-event-db
  :initialize-db
  (fn [_ _]
@@ -97,7 +116,8 @@
 (re-frame/reg-event-fx
  :tick
  (fn [{:keys [db]} _]
-   (let [new-db (update db :tick inc)]
+   (let [{:keys [tick]} db
+         new-db (assoc db :tick (inc tick))]
      {:db
       new-db
 
@@ -106,4 +126,5 @@
            :ants
            (map (fn [[coordinate ant]]
                   (movement/events new-db coordinate ant)))
+           ;; (cons (when (zero? (mod tick 10)) [[:decay]]))
            (apply concat))})))
