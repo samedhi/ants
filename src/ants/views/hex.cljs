@@ -45,7 +45,7 @@
                        :display :flex
                        :align-items :flex-end
                        :justify-content :center}}
-         [mui/typography pheromone]]]
+         [mui/typography (.toFixed pheromone 2)]]]
        (when entrence?
          [:div {:style {:position :absolute
                         :width "100%"
