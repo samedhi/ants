@@ -38,6 +38,48 @@
  :food)
 
 (re-frame/reg-sub
+ :pheromones
+ :pheromones)
+
+(re-frame/reg-sub
+ :pheromones-max
+ :<- [:pheromones]
+ (fn [pheromones _]
+   (->> (map vals pheromones)
+        (mapcat +)
+        seq
+        (or [0])
+        (apply max))))
+
+(defn scaled-opacity [n-max]
+  (js/Math.pow
+   2
+   (js/Math.ceil
+    (js/Math.log2
+     (max 8 n-max)))))
+
+(re-frame/reg-sub
+ :pheromone-divisions
+ :<- [:pheromones-max]
+ (fn [pheromones-max _]
+   (println :pheromone-divisions pheromones-max)
+   (scaled-opacity pheromones-max)))
+
+(re-frame/reg-sub
+ :pheromone-map
+ :<- [:pheromones]
+ :<- [:pheromone-divisions]
+ (fn [[pheromones pheromone-divisions] [_ coordinate]]
+   (let [pheromone (if-let [m (get pheromones coordinate)]
+                     (apply + (vals m))
+                     0)]
+     {:pheromone
+      pheromone
+
+      :pheromone-opacity
+      (/ pheromone pheromone-divisions)})))
+
+(re-frame/reg-sub
  :ant-at-tile
  :<- [:ants]
  (fn [ants [_ coordinate]]
@@ -48,9 +90,11 @@
  (fn [[_ coordinate] _]
    [(re-frame/subscribe [:ant-at-tile coordinate])
     (re-frame/subscribe [:entrences])
-    (re-frame/subscribe [:food])])
- (fn [[ant entrences food] [_ coordinate]]
-   (merge ant
-          {:food (food coordinate 0)}
+    (re-frame/subscribe [:food])
+    (re-frame/subscribe [:pheromone-map coordinate])])
+ (fn [[ant entrences food pheromone-map] [_ coordinate]]
+   (merge {:food (food coordinate 0)}
+          pheromone-map
+          ant
           (when (contains? entrences coordinate)
             {:entrence? true}))))

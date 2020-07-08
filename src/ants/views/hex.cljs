@@ -26,10 +26,26 @@
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
-        {:keys [facing entrence? food has-food?] :as state} tile-state]
+        {:keys [facing entrence? food has-food?
+                pheromone pheromone-opacity] :as state} tile-state]
     [:div {:class :column}
      [:li
       [:div {:class (conj [:hexagon] (when (pos? food) :food))}
+       [:div {:style {:position :absolute
+                      :width "100%"
+                      :height "100%"}}
+        [:div {:style {:position :absolute
+                       :width "100%"
+                       :height "100%"
+                       :background-color :red
+                       :opacity (if (pos? food) 0 pheromone-opacity)}}]
+        [:div {:style {:position :absolute
+                       :width "100%"
+                       :height "25%"
+                       :display :flex
+                       :align-items :flex-end
+                       :justify-content :center}}
+         [mui/typography pheromone]]]
        (when entrence?
          [:div {:style {:position :absolute
                         :width "100%"
@@ -42,7 +58,7 @@
                         :display :flex
                         :align-items :center
                         :justify-content :center}}
-          [mui/typography food]])
+          [mui/typography {:variant :h4} food]])
        (when facing
          (let [[x y] coordinate
                ant-image (if has-food? images/ant-walk-with-food images/ant-walk)]
