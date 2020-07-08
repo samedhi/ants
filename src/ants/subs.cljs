@@ -62,7 +62,6 @@
  :pheromone-divisions
  :<- [:pheromones-max]
  (fn [pheromones-max _]
-   (println :pheromone-divisions pheromones-max)
    (scaled-opacity pheromones-max)))
 
 (defn pheromone-sum [pheromones coordinate]
