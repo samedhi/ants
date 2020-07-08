@@ -1,6 +1,7 @@
 (ns ants.movement
   (:require
-   [ants.config :as config]))
+   [ants.config :as config]
+   [ants.subs :as subs]))
 
 (defn blind-options [coordinate old-facing]
   (let [[x-old y-old] coordinate
@@ -27,17 +28,24 @@
 (defn move-option->event [{:keys [x y facing coordinate] :as move-option}]
   [:move coordinate [x y] facing])
 
-(defn permissive-rand-nth [xs]
-  (when (-> xs count pos?)
-    (rand-nth xs)))
+(defn select-coordinate [coordinates pheromones]
+  (let [pheromone-sums (map #(subs/pheromone-sum pheromones [(:x %) (:y %)]) coordinates)
+        sums (map inc pheromone-sums)
+        total-sum (apply + sums)
+        lookups (rest (reductions + 0 sums))
+        n (rand-int total-sum)
+        coordinates-and-lookups (map vector coordinates lookups)
+        wtf (drop-while #(< (second %) n) coordinates-and-lookups)
+        winner (ffirst wtf)]
+    winner))
 
 (defn move-options [db coordinate facing]
-  (let [{:keys [row-count column-count ants]} db]
+  (let [{:keys [row-count column-count ants pheromones]} db]
     (some-> coordinate
             (blind-options facing)
             (remove-off-plane-coordinates row-count column-count)
             (remove-collisions ants)
-            permissive-rand-nth
+            (select-coordinate pheromones)
             move-option->event
             vector)))
 

@@ -65,19 +65,19 @@
    (println :pheromone-divisions pheromones-max)
    (scaled-opacity pheromones-max)))
 
+(defn pheromone-sum [pheromones coordinate]
+  (if-let [m (get pheromones coordinate)]
+    (apply + (vals m))
+    0))
+
 (re-frame/reg-sub
  :pheromone-map
  :<- [:pheromones]
  :<- [:pheromone-divisions]
  (fn [[pheromones pheromone-divisions] [_ coordinate]]
-   (let [pheromone (if-let [m (get pheromones coordinate)]
-                     (apply + (vals m))
-                     0)]
-     {:pheromone
-      pheromone
-
-      :pheromone-opacity
-      (/ pheromone pheromone-divisions)})))
+   (let [pheromone (pheromone-sum pheromones coordinate)]
+     {:pheromone (pheromone-sum pheromones coordinate)
+      :pheromone-opacity (/ pheromone pheromone-divisions)})))
 
 (re-frame/reg-sub
  :ant-at-tile
