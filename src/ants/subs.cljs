@@ -3,6 +3,12 @@
    [re-frame.core :as re-frame]
    [ants.util :as util]))
 
+(enable-console-print!)
+
+(re-frame/reg-sub
+ :tick
+ :tick)
+
 (re-frame/reg-sub
  :greeting
  (fn [db]
@@ -41,17 +47,22 @@
  :pheromones
  :pheromones)
 
+(def current-pheromone-max (atom 8))
+
 (re-frame/reg-sub
  :pheromones-max
+ :<- [:tick]
  :<- [:pheromones]
- (fn [pheromones _]
-   (->> (map vals pheromones)
-        (mapcat +)
-        seq
-        (or [0])
-        (apply max))))
+ (fn [[tick pheromones] _]
+   (if (zero? (mod tick 10))
+     (->> (vals pheromones)
+          (map vals)
+          (map #(apply + %))
+          (apply max)
+          (reset! current-pheromone-max))
+     @current-pheromone-max)))
 
-(defn scaled-opacity [n-max]
+(defn binary-divisions [n-max]
   (js/Math.pow
    2
    (js/Math.ceil
@@ -62,7 +73,9 @@
  :pheromone-divisions
  :<- [:pheromones-max]
  (fn [pheromones-max _]
-   (scaled-opacity pheromones-max)))
+   (let [divisions (binary-divisions pheromones-max)]
+     (println :pheromone-divisions pheromones-max divisions)
+     divisions)))
 
 (defn pheromone-sum [pheromones coordinate]
   (if-let [m (get pheromones coordinate)]
