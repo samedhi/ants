@@ -55,11 +55,11 @@
  :<- [:pheromones]
  (fn [[tick pheromones] _]
    (if (zero? (mod tick 10))
-     (->> (vals pheromones)
-          (map vals)
-          (map #(apply + %))
-          (apply max)
-          (reset! current-pheromone-max))
+     (some->> (vals pheromones)
+              (map vals)
+              (map #(apply + %))
+              (apply max)
+              (reset! current-pheromone-max))
      @current-pheromone-max)))
 
 (defn binary-divisions [n-max]
