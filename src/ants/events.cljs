@@ -41,7 +41,7 @@
  :drop-pheromone
  (fn [db [_ coordinate]]
    (let [{:keys [tick]} db]
-     (assoc-in db [:pheromones coordinate tick] 10))))
+     (assoc-in db [:pheromones coordinate tick] 100))))
 
 (re-frame/reg-event-db
  :reverse-move
@@ -125,5 +125,5 @@
            :ants
            (map (fn [[coordinate ant]]
                   (movement/events new-db coordinate ant)))
-           ;; (cons (when (zero? (mod tick 10)) [[:decay]]))
+           (cons (when (zero? (mod tick 10)) [[:decay]]))
            (apply concat))})))

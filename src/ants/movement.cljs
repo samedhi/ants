@@ -31,13 +31,11 @@
 (defn select-coordinate [coordinates pheromones]
   (let [pheromone-sums (map #(subs/pheromone-sum pheromones [(:x %) (:y %)]) coordinates)
         sums (map inc pheromone-sums)
-        total-sum (apply + sums)
         lookups (rest (reductions + 0 sums))
-        n (rand-int total-sum)
+        n (rand-int (apply + sums))
         coordinates-and-lookups (map vector coordinates lookups)
-        wtf (drop-while #(< (second %) n) coordinates-and-lookups)
-        winner (ffirst wtf)]
-    winner))
+        drop-coordinates-and-lookups (drop-while #(<= (second %) n) coordinates-and-lookups)]
+    (ffirst drop-coordinates-and-lookups)))
 
 (defn move-options [db coordinate facing]
   (let [{:keys [row-count column-count ants pheromones]} db]
