@@ -40,8 +40,9 @@
 (re-frame/reg-event-db
  :drop-pheromone
  (fn [db [_ coordinate]]
-   (let [{:keys [tick]} db]
-     (assoc-in db [:pheromones coordinate tick] 100))))
+   (let [{:keys [tick]} db
+         magnitude (-> db :ants (get coordinate) :max-steps)]
+     (assoc-in db [:pheromones coordinate tick] magnitude))))
 
 (re-frame/reg-event-db
  :reverse-move
