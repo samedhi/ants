@@ -11,7 +11,7 @@
 (re-frame/reg-sub
  :pretty-print-db
  (fn [db]
-   (util/pprint db)))
+   (util/pprint (dissoc db :pheromones))))
 
 (re-frame/reg-sub
  :row-count
