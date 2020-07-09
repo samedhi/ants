@@ -73,9 +73,7 @@
  :pheromone-divisions
  :<- [:pheromones-max]
  (fn [pheromones-max _]
-   (let [divisions (binary-divisions pheromones-max)]
-     (println :pheromone-divisions pheromones-max divisions)
-     divisions)))
+   (binary-divisions pheromones-max)))
 
 (defn pheromone-sum [pheromones coordinate]
   (if-let [m (get pheromones coordinate)]
