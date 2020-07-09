@@ -1,6 +1,5 @@
 (ns ^:figwheel-hooks ants.core
   (:require
-   [firemore.core :as firemore]
    [goog.dom :as goog.dom]
    [reagent.dom :as reagent.dom]
    [re-frame.core :as re-frame]
