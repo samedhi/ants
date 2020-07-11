@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [ants.mui :as mui]
    [ants.views.hex :as hex]
+   [ants.views.tools :as tools]
    [ants.views.util :as views.util]
    [ants.util :as util]))
 
@@ -17,6 +18,7 @@
   [mui/container
    {:max-width "xl"}
    [title]
+   [tools/component]
    [hex/component]
    [views.util/app-db-viewer]
    [views.util/footer]])

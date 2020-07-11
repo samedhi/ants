@@ -67,7 +67,7 @@
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])
         column-count @(re-frame/subscribe [:column-count])]
-    [:div {:id :grid :class :clear}
+    [:div {:id :grid :class "hex-grid"}
      (for [row-i (range row-count)]
        ^{:key row-i}
        [:div {:class :row
