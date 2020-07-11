@@ -3,26 +3,8 @@
    [re-frame.core :as re-frame]
    [ants.config :as config]
    [ants.mui :as mui]
-   [ants.views.images :as images]))
-
-(defn image
-  ([image-map]
-   (image image-map :none))
-  ([image-map facing]
-   (image image-map facing [0 0]))
-  ([image-map facing coordinate]
-   (let [[row column] coordinate
-         {:keys [src width height rows columns] :or {rows 1 columns 1}} image-map
-         section-width (/ width columns)
-         section-height (/ height rows)]
-     [:div {:class :img-container
-            :style {:transform (str "rotate(" (config/facing->degrees facing) "deg)")}}
-      [:img {:src src
-             :style {:position :relative
-                     :top (str "-" row "00%")
-                     :left (str "-" column "00%")
-                     :height (str rows "00%")
-                     :width (str columns "00%")}}]])))
+   [ants.views.images :as images]
+   [ants.util :as util]))
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
@@ -50,7 +32,7 @@
          [:div {:style {:position :absolute
                         :width "100%"
                         :height "100%"}}
-          [image images/mound]])
+          [util/image images/mound]])
        (when (pos? food)
          [:div {:style {:position :absolute
                         :width "100%"
@@ -62,7 +44,7 @@
        (when facing
          (let [[x y] coordinate
                ant-image (if has-food? images/ant-walk-with-food images/ant-walk)]
-           [image ant-image facing [(mod x 7) (mod y 8)]]))]]]))
+           [util/image ant-image facing [(mod x 7) (mod y 8)]]))]]]))
 
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])
