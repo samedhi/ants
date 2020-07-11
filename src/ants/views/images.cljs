@@ -15,3 +15,9 @@
 (def mound {:src "img/mound.png"
             :width 640
             :height 480})
+
+(def rock-tile {:src "img/walk.png"
+                :width 192
+                :height 192
+                :rows 6
+                :columns 6})
