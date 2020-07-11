@@ -21,3 +21,8 @@
                 :height 192
                 :rows 6
                 :columns 6})
+
+
+(def eyedropper {:src "img/walk.png"
+                 :width 981
+                 :height 908})
