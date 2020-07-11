@@ -128,3 +128,8 @@
                   (movement/events new-db coordinate ant)))
            (cons (when (zero? (mod tick 10)) [[:decay]]))
            (apply concat))})))
+
+(re-frame/reg-event-db
+ :select-tool
+ (fn [db [_ tool]]
+   (assoc db :selected-tool tool)))

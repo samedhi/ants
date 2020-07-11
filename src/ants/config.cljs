@@ -46,11 +46,12 @@
          :west [0 -1]
          :northwest [-1 -1]}})
 
-(def default-db {:tick 0
-                 :row-count 3
-                 :column-count 5
-                 :time-between-ticks 1000;; milliseconds
+(def default-db {:selected-tool :drop-ant
+                 :tick 0
+                 :row-count 4
+                 :column-count 4
+                 :time-between-ticks 100;; milliseconds
                  :pheromones {}
-                 :food {[2 4] 10}
-                 :entrences #{[0 0]}
-                 :ants {[0 0] {:facing :northeast :max-steps 10}}})
+                 :food {[3 3] 5000}
+                 :entrences #{[1 1]}
+                 :ants {[1 1] {:facing :northeast :max-steps 30}}})

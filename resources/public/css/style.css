@@ -80,7 +80,7 @@ body {
     padding: 1rem;
     margin: 1rem 0;
     position: relative;
-    height: 6rem;
+    height: 7rem;
 }
 
 .tools .container {
@@ -94,8 +94,25 @@ body {
     position: relative;
     height: 6rem;
     width: 15%;
+    cursor: pointer;
 }
 
 .tools .text {
     text-align: center;
+}
+
+.tools .border {
+    position: absolute;
+    width: 100%;
+    height: inherit;
+}
+
+@keyframes ants { to { background-position: 100% 100% } }
+
+.tools .selected {
+    border: 3px solid transparent;
+	  background: linear-gradient(white, white) padding-box,
+	              repeating-linear-gradient(-45deg, black 0, black 25%,
+                                          transparent 0, transparent 50%) 0 / .6em .6em;
+	  animation: ants 12s linear infinite;
 }

@@ -8,35 +8,42 @@
    [ants.views.util :as views.util]))
 
 (def tools
-  [{:event :drop-ant
+  [{:tool :drop-ant
     :image-map images/ant-walk}
-   {:event :drop-colony
+   {:tool :drop-colony
     :image-map images/mound}
-   {:event :drop-10-food
+   {:tool :drop-10-food
     :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
-   {:event :drop-100-food
+   {:tool :drop-100-food
     :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
-   {:event :drop-pheromone
+   {:tool :drop-pheromone
     :image-map images/eyedropper}
-   {:event :drop-10-pheromones
+   {:tool :drop-10-pheromones
     :image-map images/eyedropper}
    ])
 
-(defn tool-button [tool]
-  (let [{:keys [event image-map text]} tool]
+(defn tool-button [tool-map]
+
+  (let [{:keys [tool image-map text]} tool-map
+        selected-tool @(re-frame/subscribe [:selected-tool])]
     [:div.button
+     (merge
+      {:on-click
+      (fn [evt] (re-frame/dispatch [:select-tool tool]))}
+      (when (= tool selected-tool) {:class "selected"}))
      [mui/typography
       {:class "text"}
-      (string/replace (name event) "-" " ")]
+      (string/replace (name tool) "-" " ")]
      [views.util/image
       image-map
       :none
-      [(get image-map :row 0) (get image-map :column 0)]]]))
+      [(get image-map :row 0) (get image-map :column 0)]]
+     [:div.spacer]]))
 
 (defn component []
   [mui/paper {:class "tools"}
    [:div {:class "container"}
-    (for [tool tools]
-      ^{:key (-> tool :event name)}
-      [tool-button tool])]])
+    (for [tool-map tools]
+      ^{:key (-> tool-map :tool name)}
+      [tool-button tool-map])]])
 

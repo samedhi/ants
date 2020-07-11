@@ -24,6 +24,10 @@
  :row-count)
 
 (re-frame/reg-sub
+ :selected-tool
+ :selected-tool)
+
+(re-frame/reg-sub
  :column-count
  :column-count)
 
