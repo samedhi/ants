@@ -4,7 +4,8 @@
    [ants.config :as config]
    [ants.mui :as mui]
    [ants.views.images :as images]
-   [ants.util :as util]))
+   [ants.util :as util]
+   [ants.views.util :as views.util]))
 
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
@@ -32,7 +33,7 @@
          [:div {:style {:position :absolute
                         :width "100%"
                         :height "100%"}}
-          [util/image images/mound]])
+          [views.util/image images/mound]])
        (when (pos? food)
          [:div {:style {:position :absolute
                         :width "100%"
@@ -44,7 +45,7 @@
        (when facing
          (let [[x y] coordinate
                ant-image (if has-food? images/ant-walk-with-food images/ant-walk)]
-           [util/image ant-image facing [(mod x 7) (mod y 8)]]))]]]))
+           [views.util/image ant-image facing [(mod x 7) (mod y 8)]]))]]]))
 
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])

@@ -70,13 +70,22 @@ body {
     transform: translateX(50%) rotate(-60deg) skewY(30deg);
 }
 
+.hex-grid {
+    margin: 1rem;
+    left: 1.6rem;
+    position: relative;
+}
+
 .tools {
     padding: 1rem;
     margin: 1rem 0;
+    position: relative;
+    height: 6rem;
 }
 
-.hex-grid {
-    margin: 1rem;
-    left: 0.5rem;
-    position: relative;
+.tools .container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: stretch;
 }
