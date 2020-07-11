@@ -13,9 +13,9 @@
    {:event :drop-colony
     :image-map images/mound}
    {:event :drop-10-food
-    :image-map (assoc images/ant-walk-with-food :row 7 :col 7)}
+    :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
    {:event :drop-100-food
-    :image-map (assoc images/ant-walk-with-food :row 7 :col 7)}
+    :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
    {:event :drop-pheromone
     :image-map images/eyedropper}
    {:event :drop-10-pheromones
@@ -25,7 +25,13 @@
 (defn tool-button [tool]
   (let [{:keys [event image-map text]} tool]
     [:div.button
-     (string/replace (name event) "-" " ")]))
+     [mui/typography
+      {:class "text"}
+      (string/replace (name event) "-" " ")]
+     [views.util/image
+      image-map
+      :none
+      [(get image-map :row 0) (get image-map :column 0)]]]))
 
 (defn component []
   [mui/paper {:class "tools"}

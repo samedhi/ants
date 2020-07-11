@@ -89,3 +89,13 @@ body {
     flex-direction: row;
     align-items: stretch;
 }
+
+.tools .container .button {
+    position: relative;
+    height: 6rem;
+    width: 15%;
+}
+
+.tools .text {
+    text-align: center;
+}

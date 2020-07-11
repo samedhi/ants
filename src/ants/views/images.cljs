@@ -23,6 +23,6 @@
                 :columns 6})
 
 
-(def eyedropper {:src "img/walk.png"
+(def eyedropper {:src "img/eyedropper.png"
                  :width 981
                  :height 908})
