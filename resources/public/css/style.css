@@ -1,5 +1,6 @@
 body {
     background: #282828;
+    overflow-x: hidden;
 }
 
 .row {
@@ -10,6 +11,16 @@ body {
 
 .column {
     flex-grow: 1;
+}
+
+.img-container {
+    position: relative;
+    top: 15%;
+    left: 15%;
+    height: 70%;
+    width: 70%;
+    transform: rotate(30deg);
+    overflow: hidden;
 }
 
 #grid li {
@@ -31,16 +42,6 @@ body {
     visibility: visible;
 }
 
-.img-container {
-    position: relative;
-    top: 15%;
-    left: 15%;
-    height: 70%;
-    width: 70%;
-    transform: rotate(30deg);
-    overflow: hidden;
-}
-
 #grid li .hexagon {
     position: absolute;
     top: 0;
@@ -58,22 +59,6 @@ body {
 
 #grid li .food {
     background: #88B04B;
-}
-
-#grid li:nth-child(6n+4), #grid li:nth-child(6n+5), #grid li:nth-child(6n+6) {
-    margin-top: -6.9285714285%;
-    margin-bottom: -6.9285714285%;
-    -o-transform: translateX(50%) rotate(-60deg) skewY(30deg);
-    -moz-transform: translateX(50%) rotate(-60deg) skewY(30deg);
-    -webkit-transform: translateX(50%) rotate(-60deg) skewY(30deg);
-    -ms-transform: translateX(50%) rotate(-60deg) skewY(30deg);
-    transform: translateX(50%) rotate(-60deg) skewY(30deg);
-}
-
-.hex-grid {
-    margin: 1rem;
-    left: 1.6rem;
-    position: relative;
 }
 
 .tools-center {

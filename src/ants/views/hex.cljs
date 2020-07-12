@@ -50,7 +50,9 @@
 (defn component []
   (let [row-count @(re-frame/subscribe [:row-count])
         column-count @(re-frame/subscribe [:column-count])]
-    [:div {:id :grid :class "hex-grid"}
+    [:div {:id :grid
+           :class "hex-grid"
+           :style {:padding-left (str (/ 100 column-count 2 ) "%")}}
      (for [row-i (range row-count)]
        ^{:key row-i}
        [:div {:class :row
