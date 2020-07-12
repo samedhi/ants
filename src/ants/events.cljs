@@ -138,4 +138,24 @@
  :tile-clicked
  (fn [{:keys [db]} [_ coordinate]]
    (let [{:keys [selected-tool]} db]
-     {:dispatch [selected-tool]})))
+     {:dispatch [selected-tool coordinate]})))
+
+(re-frame/reg-event-db
+ :drop-ant
+ (fn [db [_ coordinate]]
+   (assoc-in db [:ants coordinate] config/default-ant)))
+
+(re-frame/reg-event-db
+ :drop-colony
+ (fn [db [_ coordinate]]
+   (update-in db [:entrences] conj coordinate)))
+
+(re-frame/reg-event-db
+ :drop-10-food
+ (fn [db [_ coordinate]]
+   (update-in db [:food coordinate] (fnil + 0) 10)))
+
+(re-frame/reg-event-db
+ :drop-100-food
+ (fn [db [_ coordinate]]
+   (update-in db [:food coordinate] (fnil + 0) 100)))

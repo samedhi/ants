@@ -46,6 +46,8 @@
          :west [0 -1]
          :northwest [-1 -1]}})
 
+(def default-ant {:facing :northeast :max-steps 30})
+
 (def default-db {:selected-tool :drop-ant
                  :tick 0
                  :row-count 4
@@ -54,4 +56,4 @@
                  :pheromones {}
                  :food {[3 3] 5000}
                  :entrences #{[1 1]}
-                 :ants {[1 1] {:facing :northeast :max-steps 30}}})
+                 :ants {[1 1] default-ant}})

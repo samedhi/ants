@@ -17,10 +17,7 @@
    {:tool :drop-100-food
     :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
    {:tool :drop-pheromone
-    :image-map images/eyedropper}
-   {:tool :drop-10-pheromones
-    :image-map images/eyedropper}
-   ])
+    :image-map images/eyedropper}])
 
 (defn tool-button [tool-map]
 
