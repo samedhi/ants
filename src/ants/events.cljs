@@ -148,7 +148,9 @@
 (re-frame/reg-event-db
  :drop-colony
  (fn [db [_ coordinate]]
-   (update-in db [:entrences] conj coordinate)))
+   (if (contains? (:entrences db) coordinate)
+     (update-in db [:entrences] disj coordinate)
+     (update-in db [:entrences] conj coordinate))))
 
 (re-frame/reg-event-db
  :drop-10-food
