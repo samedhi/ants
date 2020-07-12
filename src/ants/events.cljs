@@ -133,3 +133,9 @@
  :select-tool
  (fn [db [_ tool]]
    (assoc db :selected-tool tool)))
+
+(re-frame/reg-event-fx
+ :tile-clicked
+ (fn [{:keys [db]} [_ coordinate]]
+   (let [{:keys [selected-tool]} db]
+     {:dispatch [selected-tool]})))

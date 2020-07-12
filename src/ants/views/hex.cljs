@@ -11,7 +11,8 @@
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
         {:keys [facing entrence? food has-food?
                 pheromone pheromone-opacity] :as state} tile-state]
-    [:div {:class :column}
+    [:div {:class :column
+           :on-click #(re-frame/dispatch [:tile-clicked coordinate])}
      [:li
       [:div {:class (conj [:hexagon] (when (pos? food) :food))}
        [:div {:style {:position :absolute
