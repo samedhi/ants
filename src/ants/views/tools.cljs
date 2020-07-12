@@ -34,14 +34,15 @@
      [mui/typography
       {:class "text"}
       (string/replace (name tool) "-" " ")]
-     [views.util/image
-      image-map
-      :none
-      [(get image-map :row 0) (get image-map :column 0)]]]))
+     [:div.image-container
+      [views.util/image
+       image-map
+       :none
+       [(get image-map :row 0) (get image-map :column 0)]]]]))
 
 (defn component []
-  [mui/paper {:class "tools"}
-   [:div {:class "container"}
+  [:div.tools-center
+   [mui/paper {:class "tools"}
     (for [tool-map tools]
       ^{:key (-> tool-map :tool name)}
       [tool-button tool-map])]])
