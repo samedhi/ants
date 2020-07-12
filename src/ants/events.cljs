@@ -41,8 +41,9 @@
  :drop-pheromone
  (fn [db [_ coordinate]]
    (let [{:keys [tick]} db
-         magnitude (-> db :ants (get coordinate) :max-steps)]
-     (assoc-in db [:pheromones coordinate tick] magnitude))))
+         current (-> db :pheromones (get coordinate) first second)
+         max-delta (- config/max-pheromone current)]
+     (assoc-in db [:pheromones coordinate] {tick (+ current (/ max-delta 2))}))))
 
 (re-frame/reg-event-db
  :reverse-move

@@ -1,5 +1,7 @@
 (ns ants.config)
 
+(def max-pheromone 30)
+
 (def breakpoints
   {:breakpoints [:mobile        768
                  :tablet        992
