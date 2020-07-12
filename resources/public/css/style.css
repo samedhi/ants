@@ -95,6 +95,7 @@ body {
     height: 6rem;
     width: 15%;
     cursor: pointer;
+    padding-bottom: 1rem;
 }
 
 .tools .text {

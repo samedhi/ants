@@ -37,8 +37,7 @@
      [views.util/image
       image-map
       :none
-      [(get image-map :row 0) (get image-map :column 0)]]
-     [:div.spacer]]))
+      [(get image-map :row 0) (get image-map :column 0)]]]))
 
 (defn component []
   [mui/paper {:class "tools"}
