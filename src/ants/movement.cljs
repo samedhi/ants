@@ -61,7 +61,7 @@
         steps-count (count steps)]
     (cond
       (< steps-count stuck-count)
-      [[:drop-food coordinate] [:admit-your-lost coordinate]]
+      [[:admit-your-lost coordinate]]
 
       (and reversed? has-food? (pos? steps-count))
       [[:reverse-move coordinate]]
