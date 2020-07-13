@@ -83,9 +83,8 @@
          new-db (move db old-coordinate coordinate reverse-facing)
          moved? (nil? (ant-at new-db old-coordinate))]
      (merge
-      {:db new-db}
-      (when (and has-food? moved?)
-        {:dispatch [:drop-pheromone coordinate]})))))
+      {:db new-db
+       :dispatch-n [(when (and moved? has-food?) [:drop-pheromone coordinate])]}))))
 
 (re-frame/reg-event-db
  :rotate
