@@ -127,7 +127,7 @@
    (let [entrence? (-> db :entrences (contains? coordinate))]
      (cond-> db
        entrence?       (update-in [:colony-food] (fnil inc 0))
-       (not entrence?) (assoc-in  [:food coordinate] 1)
+       (not entrence?) (update-in [:food coordinate] (fnil inc 0))
        true            (update-in [:ants coordinate] dissoc :has-food?)))))
 
 (defn decay-pheromone [tick pheromone]
