@@ -24,7 +24,7 @@
       (rename-key old-coordinate new-coordinate)
       (update new-coordinate assoc :facing new-facing)))
 
-(defn move [db [_ old-coordinate new-coordinate new-facing]]
+(defn move [db old-coordinate new-coordinate new-facing]
   (if (-> db :ants (contains? new-coordinate))
     (update-in db [:ants old-coordinate :stuck-count] (fnil inc 0))
     (update db :ants move-ant old-coordinate new-coordinate new-facing)))
@@ -44,7 +44,8 @@
 
 (re-frame/reg-event-db
  :move
- move)
+ (fn [db [_ old-coordinate new-coordinate new-facing]]
+   (move db old-coordinate new-coordinate new-facing)))
 
 (re-frame/reg-event-fx
  :reverse-move
@@ -52,7 +53,7 @@
    (let [{:keys [has-food? steps] :as ant} (-> db :ants (get old-coordinate))
          {:keys [coordinate facing]} (peek steps)
          reverse-facing (config/facing->reverse-facing facing)
-         new-db (move db [:move old-coordinate coordinate reverse-facing])]
+         new-db (move db old-coordinate coordinate reverse-facing)]
      (merge
       {:db new-db}
       (when (and has-food? ;; you have food in mouth
