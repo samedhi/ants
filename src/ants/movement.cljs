@@ -54,12 +54,15 @@
       [[:rotate coordinate right]])))
 
 (defn special-actions [db coordinate]
-  (let [{:keys [max-steps steps reversed? has-food?] :as ant} (-> db :ants (get coordinate))
-        {:keys [food entrences]} db
+  (let [{:keys [ants food entrences]} db
+        {:keys [max-steps steps reversed? has-food? stuck-count] :as ant} (get ants coordinate)
         over-colony? (contains? entrences coordinate)
         over-food? (contains? food coordinate)
         steps-count (count steps)]
     (cond
+      (< steps-count stuck-count)
+      [[:drop-food coordinate] [:admit-your-lost coordinate]]
+
       (and reversed? has-food? (pos? steps-count))
       [[:drop-pheromone coordinate] [:reverse-move coordinate]]
 

@@ -24,13 +24,14 @@
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
+      (update old-coordinate dissoc :stuck-count)
       (modify-steps old-coordinate)
       (rename-key old-coordinate new-coordinate)
       (update new-coordinate assoc :facing new-facing)))
 
 (defn move [db [_ old-coordinate new-coordinate new-facing]]
   (if (-> db :ants (contains? new-coordinate))
-    db
+    (update-in db [:ants old-coordinate :stuck-count] (fnil inc 0))
     (update db :ants move-ant old-coordinate new-coordinate new-facing)))
 
 (re-frame/reg-event-db
@@ -87,9 +88,11 @@
 (re-frame/reg-event-db
  :drop-food
  (fn [db [_ coordinate]]
-   (-> db
-       (update-in [:ants coordinate] dissoc :has-food?)
-       (update :colony-food (fnil inc 0)))))
+   (let [entrence? (-> db :entrences (contains? coordinate))]
+     (cond-> db
+       entrence?       (update-in [:colony-food] (fnil inc 0))
+       (not entrence?) (assoc-in  [:food coordinate] 1)
+       true            (update-in [:ants coordinate] dissoc :has-food?)))))
 
 (defn decay-pheromone [tick pheromone]
   (reduce-kv
