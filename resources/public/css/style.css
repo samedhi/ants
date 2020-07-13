@@ -108,3 +108,13 @@ body {
                                           transparent 0, transparent 50%) 0 / .6em .6em;
 	  animation: ants 12s linear infinite;
 }
+
+.ant-database-view {
+    display: flex;
+}
+
+.ant-database-view > * {
+    margin-right: 1rem;
+    min-width: 10rem;
+    min-height: 10rem;
+}

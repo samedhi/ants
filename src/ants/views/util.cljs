@@ -10,12 +10,18 @@
    [:code o]])
 
 (defn app-db-viewer []
-  (let [db @(re-frame/subscribe [:pretty-print-db])]
+  (let [db @(re-frame/subscribe [:pretty-print-db])
+        db-ant-seq @(re-frame/subscribe [:pretty-print-ants-seq])]
     [mui/card
      {:style {:margin "1rem 0"}}
      [mui/card-content
       [mui/typography {:color "textSecondary"} "Content of app-db is:"]
-      [code-block db]]]))
+      [code-block db]
+      [mui/typography {:color "textSecondary"} "Ants state (" (count db-ant-seq) ")"]
+      [:div.ant-database-view
+       (for [[i db-ant] (map-indexed vector db-ant-seq)]
+         ^{:key i}
+         [code-block db-ant])]]]))
 
 (defn footer []
   [mui/grid

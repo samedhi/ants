@@ -18,14 +18,21 @@
  :pretty-print-db
  (fn [db]
    (util/pprint
-    (-> db
-        (dissoc :pheromones)
-        (update :ants #(reduce-kv
-                        (fn [m k v] (assoc m k
-                                           (-> (select-keys v [:lost? :steps])
-                                               (update :steps count))))
-                        {}
-                        %))))))
+    (into (sorted-map)
+          (-> db
+              (assoc :pheromones "...")
+              (assoc :ants "..."))))))
+
+(re-frame/reg-sub
+ :pretty-print-ants-seq
+ :<- [:ants]
+ (fn [ants]
+   (for [[coordinate ant] ants]
+     (as-> ant $
+         (assoc $ :coordinate coordinate)
+         (update $ :steps count)
+         (into (sorted-map) $)
+         (util/pprint $)))))
 
 (re-frame/reg-sub
  :row-count
