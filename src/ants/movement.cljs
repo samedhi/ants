@@ -64,7 +64,7 @@
       [[:drop-food coordinate] [:admit-your-lost coordinate]]
 
       (and reversed? has-food? (pos? steps-count))
-      [[:drop-pheromone coordinate] [:reverse-move coordinate]]
+      [[:reverse-move coordinate]]
 
       (and reversed? (pos? steps-count))
       [[:reverse-move coordinate]]

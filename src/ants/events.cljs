@@ -5,11 +5,6 @@
    [clojure.set :as set]
    [re-frame.core :as re-frame]))
 
-(re-frame/reg-event-db
- :initialize-db
- (fn [_ _]
-   config/default-db))
-
 (defn rename-key [m k-old k-new]
   (set/rename-keys m {k-old k-new}))
 
@@ -35,8 +30,9 @@
     (update db :ants move-ant old-coordinate new-coordinate new-facing)))
 
 (re-frame/reg-event-db
- :move
- move)
+ :initialize-db
+ (fn [_ _]
+   config/default-db))
 
 (re-frame/reg-event-db
  :drop-pheromone
@@ -47,11 +43,21 @@
      (assoc-in db [:pheromones coordinate] {tick (+ current (/ max-delta 2))}))))
 
 (re-frame/reg-event-db
+ :move
+ move)
+
+(re-frame/reg-event-fx
  :reverse-move
- (fn [db [_ old-coordinate]]
-   (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)
-         reverse-facing (config/facing->reverse-facing facing)]
-     (move db [:move old-coordinate coordinate reverse-facing]))))
+ (fn [{:keys [db]} [_ old-coordinate]]
+   (let [{:keys [has-food? steps] :as ant} (-> db :ants (get old-coordinate))
+         {:keys [coordinate facing]} (peek steps)
+         reverse-facing (config/facing->reverse-facing facing)
+         new-db (move db [:move old-coordinate coordinate reverse-facing])]
+     (merge
+      {:db new-db}
+      (when (and has-food? ;; you have food in mouth
+                 (-> new-db (get old-coordinate) nil?)) ;; you succeeded in moving
+        {:dispatch [:drop-pheromone coordinate]})))))
 
 (re-frame/reg-event-db
  :rotate
@@ -77,13 +83,14 @@
     (update db :food dissoc coordinate)
     db))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :grab-food
- (fn [db [_ coordinate]]
-   (-> db
-       (assoc-in [:ants coordinate :has-food?] true)
-       (update-in [:food coordinate] dec)
-       (harvested-handler coordinate))))
+ (fn [{:keys [db]} [_ coordinate]]
+   {:db (-> db
+            (assoc-in [:ants coordinate :has-food?] true)
+            (update-in [:food coordinate] dec)
+            (harvested-handler coordinate))
+    :dispatch [:drop-pheromone coordinate]}))
 
 (re-frame/reg-event-db
  :drop-food
