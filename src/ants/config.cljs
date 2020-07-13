@@ -50,14 +50,14 @@
          :west [0 -1]
          :northwest [-1 -1]}})
 
-(def default-ant {:facing :northeast :max-steps 30})
+(def default-ant {:facing :northeast :max-steps 20 :name "ant-1"})
 
 (def default-db {:selected-tool :drop-ant
                  :tick 0
-                 :row-count 10
-                 :column-count 10
-                 :time-between-ticks 100;; milliseconds
+                 :row-count 5
+                 :column-count 5
+                 :time-between-ticks 0;; milliseconds
                  :pheromones {}
-                 :food {[6 7] 5000}
-                 :entrences #{[1 1]}
-                 :ants {[1 1] default-ant}})
+                 :food {[4 4] 5000}
+                 :entrences #{[0 0]}
+                 :ants {[0 0] default-ant}})

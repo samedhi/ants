@@ -27,7 +27,7 @@
  :pretty-print-ants-seq
  :<- [:ants]
  (fn [ants]
-   (for [[coordinate ant] ants]
+   (for [[coordinate ant] (sort-by #(-> % second :name) ants)]
      (as-> ant $
          (assoc $ :coordinate coordinate)
          (update $ :steps count)

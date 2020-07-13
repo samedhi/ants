@@ -103,7 +103,7 @@
  :reset
  (fn [db [_ coordinate]]
    (-> db
-       (update-in [:ants coordinate] select-keys [:facing :max-steps])
+       (update-in [:ants coordinate] select-keys [:facing :max-steps :name])
        (assoc-in  [:ants coordinate :state] :foraging)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
@@ -183,7 +183,9 @@
 (re-frame/reg-event-db
  :drop-ant
  (fn [db [_ coordinate]]
-   (assoc-in db [:ants coordinate] config/default-ant)))
+   (let [ant-name (->> db :ants count inc (str "ant-"))
+         new-ant (assoc config/default-ant :name ant-name)]
+     (assoc-in db [:ants coordinate] new-ant))))
 
 (re-frame/reg-event-db
  :drop-colony
