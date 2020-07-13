@@ -34,6 +34,15 @@
  (fn [_ _]
    config/default-db))
 
+(re-frame/reg-event-fx
+ :lost
+ (fn [{:keys [db]} [_ coordinate]]
+   {:db (-> db
+            (assoc-in [:ants coordinate :state] :lost)
+            (assoc-in [:ants coordinate :lost?] true)
+            (update-in [:ants coordinate] dissoc :steps :reversed? :stuck-count))
+    :dispatch-n [(when (-> db :ants (get coordinate) :has-food?) [:drop-food coordinate])]}))
+
 (defn tile-at [db root-key coordinate]
   (get-in db [root-key coordinate]))
 
