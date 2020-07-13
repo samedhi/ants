@@ -1,6 +1,8 @@
 (ns ants.config)
 
-(def max-pheromone 30)
+(def decay-rate 0.90)
+
+(def max-pheromone 100)
 
 (def breakpoints
   {:breakpoints [:mobile        768
@@ -52,10 +54,10 @@
 
 (def default-db {:selected-tool :drop-ant
                  :tick 0
-                 :row-count 4
-                 :column-count 4
+                 :row-count 10
+                 :column-count 10
                  :time-between-ticks 100;; milliseconds
                  :pheromones {}
-                 :food {[3 3] 5000}
+                 :food {[6 7] 5000}
                  :entrences #{[1 1]}
                  :ants {[1 1] default-ant}})

@@ -17,7 +17,15 @@
 (re-frame/reg-sub
  :pretty-print-db
  (fn [db]
-   (util/pprint (dissoc db :pheromones))))
+   (util/pprint
+    (-> db
+        (dissoc :pheromones)
+        (update :ants #(reduce-kv
+                        (fn [m k v] (assoc m k
+                                           (-> (select-keys v [:lost? :steps])
+                                               (update :steps count))))
+                        {}
+                        %))))))
 
 (re-frame/reg-sub
  :row-count

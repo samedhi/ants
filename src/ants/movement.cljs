@@ -53,7 +53,11 @@
       [[:rotate coordinate left]]
       [[:rotate coordinate right]])))
 
-(defn special-actions [db coordinate]
+(defn println-pass [o]
+  (println o)
+  o)
+
+(defn pre-special-actions [db coordinate]
   (let [{:keys [ants food entrences]} db
         {:keys [max-steps steps reversed? has-food? stuck-count state] :as ant} (get ants coordinate)
         over-colony? (contains? entrences coordinate)
@@ -63,17 +67,17 @@
       (and over-colony? (not= state :foraging))
       [[:reset coordinate]]
 
-      (< steps-count stuck-count)
-      [[:admit-your-lost coordinate]]
+      (<= steps-count stuck-count)
+      [[:admit-you-are-lost coordinate]]
 
       reversed?
       [[:reverse-move coordinate]]
 
-      (<= max-steps (count steps))
+      (<= max-steps steps-count)
       [[:reverse coordinate]])))
 
 (defn events [db coordinate ant]
   (let [{:keys [facing]} ant]
-    (or (special-actions db coordinate)
+    (or (pre-special-actions db coordinate)
         (move-options db coordinate facing)
         (rotate-options coordinate facing))))
