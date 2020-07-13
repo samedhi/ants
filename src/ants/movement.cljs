@@ -69,8 +69,8 @@
       (and reversed? (pos? steps-count))
       [[:reverse-move coordinate]]
 
-      (and over-food? (not has-food?))
-      [[:grab-food coordinate] [:reverse coordinate]]
+      (and has-food? (not reversed?))
+      [[:reverse coordinate]]
 
       (and (not reversed?) (<= max-steps (count steps)))
       [[:reverse coordinate]]

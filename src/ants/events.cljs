@@ -34,6 +34,15 @@
  (fn [_ _]
    config/default-db))
 
+(defn tile-at [db root-key coordinate]
+  (get-in db [root-key coordinate]))
+
+(defn ant-at [db coordinate]
+  (tile-at db :ants coordinate))
+
+(defn food-at [db coordinate]
+  (tile-at db :food coordinate))
+
 (re-frame/reg-event-db
  :drop-pheromone
  (fn [db [_ coordinate]]
@@ -42,10 +51,16 @@
          max-delta (- config/max-pheromone current)]
      (assoc-in db [:pheromones coordinate] {tick (+ current (/ max-delta 2))}))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :move
- (fn [db [_ old-coordinate new-coordinate new-facing]]
-   (move db old-coordinate new-coordinate new-facing)))
+ (fn [{:keys [db]} [_ old-coordinate new-coordinate new-facing]]
+   (let [new-db (move db old-coordinate new-coordinate new-facing)
+         tile-has-food? (pos? (food-at new-db new-coordinate))
+         moved? (nil? (ant-at new-db old-coordinate))]
+     (merge
+      {:db new-db}
+      (when (and tile-has-food? moved?)
+        {:dispatch [:grab-food new-coordinate]})))))
 
 (re-frame/reg-event-fx
  :reverse-move
@@ -53,11 +68,11 @@
    (let [{:keys [has-food? steps] :as ant} (-> db :ants (get old-coordinate))
          {:keys [coordinate facing]} (peek steps)
          reverse-facing (config/facing->reverse-facing facing)
-         new-db (move db old-coordinate coordinate reverse-facing)]
+         new-db (move db old-coordinate coordinate reverse-facing)
+         moved? (nil? (ant-at new-db old-coordinate))]
      (merge
       {:db new-db}
-      (when (and has-food? ;; you have food in mouth
-                 (-> new-db (get old-coordinate) nil?)) ;; you succeeded in moving
+      (when (and has-food? moved?)
         {:dispatch [:drop-pheromone coordinate]})))))
 
 (re-frame/reg-event-db
