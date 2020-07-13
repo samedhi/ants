@@ -55,31 +55,22 @@
 
 (defn special-actions [db coordinate]
   (let [{:keys [ants food entrences]} db
-        {:keys [max-steps steps reversed? has-food? stuck-count] :as ant} (get ants coordinate)
+        {:keys [max-steps steps reversed? has-food? stuck-count state] :as ant} (get ants coordinate)
         over-colony? (contains? entrences coordinate)
         over-food? (contains? food coordinate)
         steps-count (count steps)]
     (cond
+      (and over-colony? (not= state :foraging))
+      [[:reset coordinate]]
+
       (< steps-count stuck-count)
       [[:admit-your-lost coordinate]]
 
-      (and reversed? has-food? (pos? steps-count))
+      reversed?
       [[:reverse-move coordinate]]
 
-      (and reversed? (pos? steps-count))
-      [[:reverse-move coordinate]]
-
-      (and (not reversed?) (<= max-steps (count steps)))
-      [[:reverse coordinate]]
-
-      (and over-colony? has-food?)
-      [[:drop-food coordinate] [:reset coordinate]]
-
-      (and over-colony? reversed?)
-      [[:reset coordinate]]
-
-      (and over-colony? (pos? steps-count))
-      [[:reset coordinate]])))
+      (<= max-steps (count steps))
+      [[:reverse coordinate]])))
 
 (defn events [db coordinate ant]
   (let [{:keys [facing]} ant]

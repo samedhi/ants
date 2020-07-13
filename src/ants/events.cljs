@@ -9,7 +9,7 @@
   (set/rename-keys m {k-old k-new}))
 
 (defn modify-steps [ants coordinate]
-  (let [{:keys [reversed?] :as ant} (get ants coordinate)
+  (let [{:keys [reversed? steps] :as ant} (get ants coordinate)
         new-ant (as-> ant $
                   (select-keys $ [:facing])
                   (assoc $ :coordinate coordinate))]
@@ -85,6 +85,7 @@
  :reverse
  (fn [db [_ coordinate]]
    (-> db
+       (assoc-in  [:ants coordinate :state] :returning)
        (update-in [:ants coordinate :reversed?] not)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
@@ -92,7 +93,8 @@
  :reset
  (fn [db [_ coordinate]]
    (-> db
-       (update-in [:ants coordinate] dissoc :steps :reversed?)
+       (update-in [:ants coordinate] select-keys [:facing :max-steps])
+       (assoc-in  [:ants coordinate :state] :foraging)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
 (defn harvested-handler [db coordinate]
