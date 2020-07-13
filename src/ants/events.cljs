@@ -60,7 +60,8 @@
      (merge
       {:db new-db}
       (when (and tile-has-food? moved?)
-        {:dispatch [:grab-food new-coordinate]})))))
+        {:dispatch-n [[:grab-food new-coordinate]
+                      [:reverse new-coordinate]]})))))
 
 (re-frame/reg-event-fx
  :reverse-move
