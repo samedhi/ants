@@ -202,12 +202,9 @@
  (fn [db [_ coordinate]]
    (update-in db [:food coordinate] (fnil + 0) 100)))
 
-(re-frame/reg-event-db
- :admit-you-are-lost
+(re-frame/reg-event-fx
+ :consider-if-you-are-lost
  (fn [db [_ coordinate]]
    (let [{:keys [stuck-count max-steps]} (get (:ants db) coordinate)]
      (if (-> max-steps (- stuck-count) rand-int pos? not)
-       (-> db
-           (assoc-in [:ants coordinate :lost?] true)
-           (assoc-in [:ants coordinate :steps] []))
-       db))))
+       {:dispatch [:lost coordinate]}))))
