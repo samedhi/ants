@@ -65,10 +65,12 @@
  (fn [{:keys [db]} [_ old-coordinate new-coordinate new-facing]]
    (let [new-db (move db old-coordinate new-coordinate new-facing)
          tile-has-food? (pos? (food-at new-db new-coordinate))
-         moved? (nil? (ant-at new-db old-coordinate))]
+         {:keys [state]} (ant-at db old-coordinate)
+         moved? (nil? (ant-at new-db old-coordinate))
+         foraging? (= :foraging state)]
      (merge
       {:db new-db}
-      (when (and tile-has-food? moved?)
+      (when (and tile-has-food? moved? foraging?)
         {:dispatch-n [[:grab-food new-coordinate]
                       [:reverse new-coordinate]]})))))
 
