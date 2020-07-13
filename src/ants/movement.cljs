@@ -61,6 +61,7 @@
   (let [{:keys [ants food entrences]} db
         {:keys [max-steps steps reversed? has-food?
                 stuck-count state facing] :as ant} (get ants coordinate)
+        lost? (= state :lost)
         over-colony? (contains? entrences coordinate)
         over-food? (contains? food coordinate)
         steps-count (count steps)]
@@ -68,7 +69,7 @@
       (and over-colony? (not= state :foraging))
       [[:reset coordinate]]
 
-      (and (not over-colony?) (zero? steps-count))
+      (and (not over-colony?) (zero? steps-count) (not lost?))
       [[:lost coordinate]]
 
       (pos? stuck-count)
