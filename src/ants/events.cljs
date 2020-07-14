@@ -39,7 +39,6 @@
  (fn [{:keys [db]} [_ coordinate]]
    {:db (-> db
             (assoc-in [:ants coordinate :state] :lost)
-            (assoc-in [:ants coordinate :lost?] true)
             (assoc-in [:ants coordinate :steps] []))
     :dispatch-n [(when (-> db :ants (get coordinate) :has-food?) [:drop-food coordinate])]}))
 
