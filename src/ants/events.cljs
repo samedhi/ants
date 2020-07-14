@@ -19,7 +19,7 @@
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
-      (update old-coordinate dissoc :stuck-count)
+      (update old-coordinate assoc :stuck-count 0)
       (modify-steps old-coordinate)
       (rename-key old-coordinate new-coordinate)
       (update new-coordinate assoc :facing new-facing)))
@@ -40,7 +40,8 @@
    {:db (-> db
             (assoc-in [:ants coordinate :state] :lost)
             (assoc-in [:ants coordinate :lost?] true)
-            (update-in [:ants coordinate] dissoc :steps :reversed? :stuck-count))
+            (assoc-in [:ants coordinate :steps] [])
+            (assoc-in [:ants coordinate :reversed?] false))
     :dispatch-n [(when (-> db :ants (get coordinate) :has-food?) [:drop-food coordinate])]}))
 
 (defn tile-at [db root-key coordinate]
@@ -56,9 +57,10 @@
  :drop-pheromone
  (fn [db [_ coordinate]]
    (let [{:keys [tick]} db
+         {:keys [max-steps]} (ant-at db coordinate)
          current (-> db :pheromones (get coordinate) first second)
-         max-delta (- config/max-pheromone current)]
-     (assoc-in db [:pheromones coordinate] {tick (+ current (/ max-delta 2))}))))
+         new-current (+ current max-steps)]
+     (assoc-in db [:pheromones coordinate] {tick new-current}))))
 
 (re-frame/reg-event-fx
  :move
@@ -81,10 +83,12 @@
          {:keys [coordinate facing]} (peek steps)
          reverse-facing (config/facing->reverse-facing facing)
          new-db (move db old-coordinate coordinate reverse-facing)
-         moved? (nil? (ant-at new-db old-coordinate))]
+         moved? (nil? (ant-at new-db old-coordinate))
+         over-colony (contains? (:entrences db) coordinate)]
      (merge
       {:db new-db
-       :dispatch-n [(when (and moved? has-food?) [:drop-pheromone coordinate])]}))))
+       :dispatch-n [(when (and moved? has-food?) [:drop-pheromone coordinate])
+                    (when (and moved? has-food? over-colony) [:drop-food coordinate])]}))))
 
 (re-frame/reg-event-db
  :rotate
@@ -99,13 +103,15 @@
        (update-in [:ants coordinate :reversed?] not)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
+(defn reset-ant [ant]
+  (-> ant
+      (assoc :state :foraging :reversed? false :steps [] :stuck-count 0)
+      (update :facing config/facing->reverse-facing)))
+
 (re-frame/reg-event-db
  :reset
  (fn [db [_ coordinate]]
-   (-> db
-       (update-in [:ants coordinate] select-keys [:facing :max-steps :name])
-       (assoc-in  [:ants coordinate :state] :foraging)
-       (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
+   (update-in db [:ants coordinate] reset-ant)))
 
 (defn harvested-handler [db coordinate]
   (if (-> db :food (get coordinate) zero?)
@@ -128,14 +134,17 @@
      (cond-> db
        entrence?       (update-in [:colony-food] (fnil inc 0))
        (not entrence?) (update-in [:food coordinate] (fnil inc 0))
-       true            (update-in [:ants coordinate] dissoc :has-food?)))))
+       true            (assoc-in [:ants coordinate :has-food?] false)))))
+
+(defn pow [n m]
+  (js/Math.pow n m))
 
 (defn decay-pheromone [tick pheromone]
   (reduce-kv
    (fn [m k v]
-     (if (<= v 0.25)
+     (if (<= v 1.1)
        (dissoc m k)
-       (update m k * 0.9)))
+       (update m k pow config/decay-rate)))
      pheromone
      pheromone))
 

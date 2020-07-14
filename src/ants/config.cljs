@@ -1,6 +1,8 @@
 (ns ants.config)
 
-(def decay-rate 0.90)
+(def pheromone-drop-amount 10)
+
+(def decay-rate 0.97)
 
 (def max-pheromone 100)
 
@@ -50,14 +52,18 @@
          :west [0 -1]
          :northwest [-1 -1]}})
 
-(def default-ant {:facing :northeast :max-steps 20 :name "ant-1"})
+(def default-ant {:facing :northeast
+                  :max-steps 30
+                  :name "ant-1"
+                  :has-food? false
+                  :reversed? false})
 
 (def default-db {:selected-tool :drop-ant
                  :tick 0
-                 :row-count 5
-                 :column-count 5
-                 :time-between-ticks 0;; milliseconds
+                 :row-count 15
+                 :column-count 15
+                 :time-between-ticks 1;; milliseconds
                  :pheromones {}
-                 :food {[4 4] 5000}
-                 :entrences #{[0 0]}
-                 :ants {[0 0] default-ant}})
+                 :food {[10 10] 5000}
+                 :entrences #{[5 5]}
+                 :ants {[5 5] default-ant}})
