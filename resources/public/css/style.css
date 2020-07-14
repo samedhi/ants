@@ -111,6 +111,7 @@ body {
 
 .ant-database-view {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .ant-database-view > * {
