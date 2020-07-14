@@ -13,9 +13,10 @@
         new-ant (as-> ant $
                   (select-keys $ [:facing])
                   (assoc $ :coordinate coordinate))]
-    (if (= :reversed state)
-      (update-in ants [coordinate :steps] pop)
-      (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
+    (case state
+      :lost ants
+      :reversed (update-in ants [coordinate :steps] pop)
+      :foraging (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants

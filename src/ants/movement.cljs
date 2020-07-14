@@ -78,7 +78,7 @@
       (= state :reversed)
       [[:reverse-move coordinate]]
 
-      (<= max-steps steps-count)
+      (and (not lost?) (<= max-steps steps-count))
       [[:reverse coordinate]])))
 
 (defn events [db coordinate ant]
