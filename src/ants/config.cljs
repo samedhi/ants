@@ -55,8 +55,7 @@
 (def default-ant {:facing :northeast
                   :max-steps 30
                   :name "ant-1"
-                  :has-food? false
-                  :reversed? false})
+                  :has-food? false})
 
 (def default-db {:selected-tool :drop-ant
                  :tick 0

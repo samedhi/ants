@@ -9,11 +9,11 @@
   (set/rename-keys m {k-old k-new}))
 
 (defn modify-steps [ants coordinate]
-  (let [{:keys [reversed? steps] :as ant} (get ants coordinate)
+  (let [{:keys [state steps] :as ant} (get ants coordinate)
         new-ant (as-> ant $
                   (select-keys $ [:facing])
                   (assoc $ :coordinate coordinate))]
-    (if reversed?
+    (if (= :reversed state)
       (update-in ants [coordinate :steps] pop)
       (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
@@ -40,8 +40,7 @@
    {:db (-> db
             (assoc-in [:ants coordinate :state] :lost)
             (assoc-in [:ants coordinate :lost?] true)
-            (assoc-in [:ants coordinate :steps] [])
-            (assoc-in [:ants coordinate :reversed?] false))
+            (assoc-in [:ants coordinate :steps] []))
     :dispatch-n [(when (-> db :ants (get coordinate) :has-food?) [:drop-food coordinate])]}))
 
 (defn tile-at [db root-key coordinate]
@@ -99,13 +98,12 @@
  :reverse
  (fn [db [_ coordinate]]
    (-> db
-       (assoc-in  [:ants coordinate :state] :returning)
-       (update-in [:ants coordinate :reversed?] not)
+       (assoc-in  [:ants coordinate :state] :reversed)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
 (defn reset-ant [ant]
   (-> ant
-      (assoc :state :foraging :reversed? false :steps [] :stuck-count 0)
+      (assoc :state :foraging :steps [] :stuck-count 0)
       (update :facing config/facing->reverse-facing)))
 
 (re-frame/reg-event-db
