@@ -69,10 +69,10 @@
       (and over-colony? (not= state :foraging))
       [[:reset coordinate]]
 
-      (and (not over-colony?) (zero? steps-count) (not lost?))
+      (and (not lost?) (not over-colony?) (zero? steps-count))
       [[:lost coordinate]]
 
-      (pos? stuck-count)
+      (and (not lost?) (pos? stuck-count))
       [[:consider-if-you-are-lost coordinate]]
 
       (= state :reversed)
