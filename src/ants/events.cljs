@@ -57,8 +57,9 @@
  (fn [db [_ coordinate]]
    (let [{:keys [tick]} db
          {:keys [max-steps]} (ant-at db coordinate)
+         magnitude (or max-steps 25)
          current (-> db :pheromones (get coordinate) first second)
-         new-current (+ current max-steps)]
+         new-current (+ current magnitude)]
      (assoc-in db [:pheromones coordinate] {tick new-current}))))
 
 (re-frame/reg-event-fx
