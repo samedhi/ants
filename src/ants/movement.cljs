@@ -70,14 +70,12 @@
       [[:reset coordinate]]
 
       (and (not lost?) (not over-colony?) (zero? steps-count))
-      (do (println :lost-in-space!) [[:lost coordinate]])
+      [[:lost coordinate]]
 
       (and (not lost?)
-           (<= 5 stuck-count)
-           (or
-            (= state :reversed)
-            (empty? (move-options db coordinate facing))))
-      [[:consider-if-you-are-lost coordinate]]
+           (<= 2 stuck-count)
+           (<= (rand-int max-steps) stuck-count))
+      [[:lost coordinate]]
 
       (= state :reversed)
       [[:reverse-move coordinate]]
