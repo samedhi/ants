@@ -213,7 +213,10 @@
 
 (re-frame/reg-event-fx
  :consider-if-you-are-lost
- (fn [db [_ coordinate]]
-   (let [{:keys [stuck-count max-steps]} (get (:ants db) coordinate)]
-     (if (-> max-steps (- stuck-count) rand-int pos? not)
+ (fn [{:keys [db]} [_ coordinate]]
+   (let [{:keys [stuck-count max-steps]} (ant-at db coordinate)
+         i (-> max-steps (- stuck-count) rand-int)]
+     (println :consider-if-you-are-lost coordinate stuck-count max-steps i)
+     (when (<= i 0)
+       (println :consider-if-you-are-lost-fired!)
        {:dispatch [:lost coordinate]}))))
