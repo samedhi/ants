@@ -9,13 +9,15 @@
                                       first
                                       even?
                                       {true :even false :odd}
-                                      config/even-row->facing->coordinate-delta)]
-    (for [facing (config/facing->potentials old-facing)
+                                      config/even-row->facing->coordinate-delta)
+        high-priority-facing (set (config/facing->potentials old-facing))]
+    (for [facing config/facings
           :let [[x-delta y-delta] (facing->coordinate-deltas facing)]]
       {:x (+ x-old x-delta)
        :y (+ y-old y-delta)
        :facing facing
-       :coordinate coordinate})))
+       :coordinate coordinate
+       :exponent (if (contains? high-priority-facing facing) 2 1)})))
 
 (defn remove-off-plane-coordinates [coordinates row-count column-count]
   (->> coordinates
@@ -25,17 +27,28 @@
 (defn remove-collisions [coordinates ants]
   (remove #(contains? ants [(:x %) (:y %)]) coordinates))
 
-(defn move-option->event [{:keys [x y facing coordinate] :as move-option}]
-  [:move coordinate [x y] facing])
+(defn pow [n m]
+  (js/Math.pow n m))
+
+(defn calculate-tile-weight [pheromones coordinate]
+  (let [{:keys [x y exponent]} coordinate
+        tile-pheromone-weight (subs/pheromone-sum pheromones [x y])
+        weight (+ config/tile-base-weight tile-pheromone-weight)
+        exponented-weight (pow weight exponent)]
+    (assoc coordinate :weight exponented-weight)))
 
 (defn select-coordinate [coordinates pheromones]
-  (let [pheromone-sums (map #(subs/pheromone-sum pheromones [(:x %) (:y %)]) coordinates)
-        sums (map inc pheromone-sums)
+  (let [weighted-coordinates (map (partial calculate-tile-weight pheromones) coordinates)
+        sums (map :weight weighted-coordinates)
         lookups (rest (reductions + 0 sums))
-        n (rand-int (apply + sums))
-        coordinates-and-lookups (map vector coordinates lookups)
-        drop-coordinates-and-lookups (drop-while #(<= (second %) n) coordinates-and-lookups)]
-    (ffirst drop-coordinates-and-lookups)))
+        sum-weighted-coordinates (map #(assoc %1 :sum-weight %2) weighted-coordinates lookups)
+        lookups-sum (apply + sums)
+        n (rand-int lookups-sum)
+        selected (first (drop-while #(<= (:sum-weight %) n) sum-weighted-coordinates))]
+    selected))
+
+(defn move-option->event [{:keys [x y facing coordinate] :as move-option}]
+  [:move coordinate [x y] facing])
 
 (defn move-options [db coordinate facing]
   (let [{:keys [row-count column-count ants pheromones]} db]

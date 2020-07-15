@@ -6,6 +6,8 @@
 
 (def max-pheromone 100)
 
+(def tile-base-weight 7)
+
 (def breakpoints
   {:breakpoints [:mobile        768
                  :tablet        992
@@ -20,6 +22,9 @@
    :southwest :northeast
    :west :east
    :northwest :southeast})
+
+(def facings
+  (set (keys facing->reverse-facing)))
 
 (def facing->degrees
   {:none 0
@@ -64,5 +69,5 @@
                  :time-between-ticks 1;; milliseconds
                  :pheromones {}
                  :food {[10 10] 5000}
-                 :entrences #{[5 5]}
-                 :ants {[5 5] default-ant}})
+                 :entrences #{[4 4]}
+                 :ants {[4 4] default-ant}})
