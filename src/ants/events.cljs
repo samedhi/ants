@@ -6,8 +6,17 @@
    [clojure.set :as set]
    [re-frame.core :as re-frame]))
 
-(defn rename-key [m k-old k-new]
-  (set/rename-keys m {k-old k-new}))
+(defn tile-at [db root-key coordinate]
+  (get-in db [root-key coordinate]))
+
+(defn ant-at [db coordinate]
+  (tile-at db :ants coordinate))
+
+(defn food-at [db coordinate]
+  (tile-at db :food coordinate))
+
+(defn colony-at? [db coordinate]
+  (-> db :entrences (contains? coordinate)))
 
 (defn modify-steps [ants coordinate]
   (let [{:keys [state steps] :as ant} (get ants coordinate)
@@ -19,17 +28,65 @@
       :reversed (update-in ants [coordinate :steps] pop)
       :foraging (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
+(defn drop-pheromone [db coordinate]
+  (let [{:keys [tick]} db
+        {:keys [max-steps has-food?]} (ant-at db coordinate)
+        magnitude (or max-steps 25)
+        current (-> db :pheromones (get coordinate) first second)
+        new-current (+ current magnitude)]
+    (if has-food?
+      (assoc-in db [:pheromones coordinate] {tick new-current})
+      db)))
+
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
-      (update old-coordinate assoc :stuck-count 0)
+      (assoc-in [old-coordinate :stuck-count] 0)
       (modify-steps old-coordinate)
-      (rename-key old-coordinate new-coordinate)
-      (update new-coordinate assoc :facing new-facing)))
+      (update old-coordinate assoc :facing new-facing)
+      (set/rename-keys {old-coordinate new-coordinate})))
 
 (defn move [db old-coordinate new-coordinate new-facing]
   (if (-> db :ants (contains? new-coordinate))
     (update-in db [:ants old-coordinate :stuck-count] (fnil inc 0))
-    (update db :ants move-ant old-coordinate new-coordinate new-facing)))
+    (-> db
+        (update :ants move-ant old-coordinate new-coordinate new-facing)
+        (drop-pheromone new-coordinate))))
+
+(defn reset-ant [ant]
+  (-> ant
+      (assoc :state :foraging :steps [] :stuck-count 0)
+      (update :facing config/facing->reverse-facing)))
+
+(defn harvested-handler [db coordinate]
+  (if (-> db :food (get coordinate) zero?)
+    (update db :food dissoc coordinate)
+    db))
+
+(defn not-pos? [n]
+  (-> n pos? not))
+
+(defn dec-and-dissoc-at-zero [m k]
+  (let [v-old (get m k)
+        v-new (dec v-old)]
+    (if (not-pos? v-new)
+      (dissoc m k)
+      (assoc m k v-new))))
+
+(defn pow [n m]
+  (js/Math.pow n m))
+
+(defn decay-pheromone [tick pheromone]
+  (reduce-kv
+   (fn [m k v]
+     (if (<= v 1.1)
+       (dissoc m k)
+       (update m k pow config/decay-rate)))
+   pheromone
+   pheromone))
+
+(defn decay-coordinate [tick m coordinate pheromone]
+  (assoc m coordinate (decay-pheromone tick pheromone)))
+
 
 (re-frame/reg-event-db
  :initialize-db
@@ -43,27 +100,10 @@
        (assoc-in [:ants coordinate :state] :lost)
        (assoc-in [:ants coordinate :steps] []))))
 
-(defn tile-at [db root-key coordinate]
-  (get-in db [root-key coordinate]))
-
-(defn ant-at [db coordinate]
-  (tile-at db :ants coordinate))
-
-(defn food-at [db coordinate]
-  (tile-at db :food coordinate))
-
-(defn colony-at? [db coordinate]
-  (-> db :entrences (contains? coordinate)))
-
 (re-frame/reg-event-db
  :drop-pheromone
  (fn [db [_ coordinate]]
-   (let [{:keys [tick]} db
-         {:keys [max-steps]} (ant-at db coordinate)
-         magnitude (or max-steps 25)
-         current (-> db :pheromones (get coordinate) first second)
-         new-current (+ current magnitude)]
-     (assoc-in db [:pheromones coordinate] {tick new-current}))))
+   (drop-pheromone db coordinate)))
 
 (re-frame/reg-event-db
  :move
@@ -89,30 +129,10 @@
        (assoc-in  [:ants coordinate :state] :reversed)
        (update-in [:ants coordinate :facing] config/facing->reverse-facing))))
 
-(defn reset-ant [ant]
-  (-> ant
-      (assoc :state :foraging :steps [] :stuck-count 0)
-      (update :facing config/facing->reverse-facing)))
-
 (re-frame/reg-event-db
  :reset
  (fn [db [_ coordinate]]
    (update-in db [:ants coordinate] reset-ant)))
-
-(defn harvested-handler [db coordinate]
-  (if (-> db :food (get coordinate) zero?)
-    (update db :food dissoc coordinate)
-    db))
-
-(defn not-pos? [n]
-  (-> n pos? not))
-
-(defn dec-and-dissoc-at-zero [m k]
-  (let [v-old (get m k)
-        v-new (dec v-old)]
-    (if (not-pos? v-new)
-      (dissoc m k)
-      (assoc m k v-new))))
 
 (re-frame/reg-event-db
  :grab-food
@@ -133,21 +153,6 @@
          (not colony?) (update-in [:food coordinate] (fnil inc 0))
          true          (assoc-in  [:ants coordinate :has-food?] false))
        db))))
-
-(defn pow [n m]
-  (js/Math.pow n m))
-
-(defn decay-pheromone [tick pheromone]
-  (reduce-kv
-   (fn [m k v]
-     (if (<= v 1.1)
-       (dissoc m k)
-       (update m k pow config/decay-rate)))
-     pheromone
-     pheromone))
-
-(defn decay-coordinate [tick m coordinate pheromone]
-  (assoc m coordinate (decay-pheromone tick pheromone)))
 
 (re-frame/reg-event-db
  :decay
