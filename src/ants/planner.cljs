@@ -80,7 +80,7 @@
         steps-count (count steps)]
     (cond
       (and over-colony? (not= state :foraging))
-      [[:reset coordinate]]
+      [[:drop-food] [:reset coordinate]]
 
       (and (not lost?) (not has-food?) over-food?)
       [[:grab-food coordinate] [:reverse coordinate] [:drop-pheromone coordinate]]

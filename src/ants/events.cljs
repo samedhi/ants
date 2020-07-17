@@ -70,19 +70,12 @@
  (fn [db [_ old-coordinate new-coordinate new-facing]]
    (move db old-coordinate new-coordinate new-facing)))
 
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
  :reverse-move
- (fn [{:keys [db]} [_ old-coordinate]]
-   (let [{:keys [has-food? steps] :as ant} (-> db :ants (get old-coordinate))
-         {:keys [coordinate facing]} (peek steps)
-         reverse-facing (config/facing->reverse-facing facing)
-         new-db (move db old-coordinate coordinate reverse-facing)
-         moved? (nil? (ant-at new-db old-coordinate))
-         over-colony (colony-at? db coordinate)]
-     (merge
-      {:db new-db
-       :dispatch-n [(when (and moved? has-food?) [:drop-pheromone coordinate])
-                    (when (and moved? has-food? over-colony) [:drop-food coordinate])]}))))
+ (fn [db [_ old-coordinate]]
+   (let [{:keys [coordinate facing]} (-> db :ants (get old-coordinate) :steps peek)
+         reverse-facing (config/facing->reverse-facing facing)]
+     (move db old-coordinate coordinate reverse-facing))))
 
 (re-frame/reg-event-db
  :rotate
