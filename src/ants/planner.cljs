@@ -1,4 +1,4 @@
-(ns ants.movement
+(ns ants.planner
   (:require
    [ants.config :as config]
    [ants.subs :as subs]))

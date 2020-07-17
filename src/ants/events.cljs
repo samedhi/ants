@@ -1,7 +1,7 @@
 (ns ants.events
   (:require
    [ants.config :as config]
-   [ants.movement :as movement]
+   [ants.planner :as planner]
    [cljs.core.async :as async]
    [clojure.set :as set]
    [re-frame.core :as re-frame]))
@@ -180,7 +180,7 @@
        (apply
         concat
         (map (fn [[coordinate ant]]
-               (movement/events new-db coordinate ant)) (:ants db)))
+               (planner/events new-db coordinate ant)) (:ants db)))
        [[:close-work-chan work-complete-chan]])})))
 
 (re-frame/reg-event-db
