@@ -113,12 +113,11 @@
 
 (re-frame/reg-event-fx
  :grab-food
- (fn [{:keys [db]} [_ coordinate]]
-   {:db (-> db
-            (assoc-in [:ants coordinate :has-food?] true)
-            (update-in [:food coordinate] dec)
-            (harvested-handler coordinate))
-    :dispatch [:drop-pheromone coordinate]}))
+ (fn [db [_ coordinate]]
+   (-> db
+       (assoc-in [:ants coordinate :has-food?] true)
+       (update-in [:food coordinate] dec)
+       (harvested-handler coordinate))))
 
 (re-frame/reg-event-db
  :drop-food
