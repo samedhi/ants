@@ -2,6 +2,7 @@
   (:require
    [ants.config :as config]
    [ants.movement :as movement]
+   [cljs.core.async :as async]
    [clojure.set :as set]
    [re-frame.core :as re-frame]))
 
@@ -161,21 +162,26 @@
  (fn [_ _]
    config/default-db))
 
+(re-frame/reg-event-db
+ :close-work-chan
+ (fn [db [_ work-complete-chan]]
+   (async/close! work-complete-chan)
+   db))
+
 (re-frame/reg-event-fx
  :tick
- (fn [{:keys [db]} _]
-   (let [{:keys [tick]} db
-         new-db (assoc db :tick (inc tick))]
-     {:db
-      new-db
+ (fn [{:keys [db]} [_ work-complete-chan]]
+   (let [{:keys [tick] :as new-db} (update db :tick inc)]
+     {:db new-db
 
       :dispatch-n
-      (->> db
-           :ants
-           (map (fn [[coordinate ant]]
-                  (movement/events new-db coordinate ant)))
-           (cons (when (zero? (mod tick 10)) [[:decay]]))
-           (apply concat))})))
+      (concat
+       (when (zero? (mod tick 10)) [[:decay]])
+       (apply
+        concat
+        (map (fn [[coordinate ant]]
+               (movement/events new-db coordinate ant)) (:ants db)))
+       [[:close-work-chan work-complete-chan]])})))
 
 (re-frame/reg-event-db
  :select-tool
