@@ -82,6 +82,9 @@
       (and over-colony? (not= state :foraging))
       [[:reset coordinate]]
 
+      (and (not lost?) (not has-food?) over-food?)
+      [[:grab-food coordinate] [:reverse coordinate]]
+
       (and (not lost?) (not over-colony?) (zero? steps-count))
       [[:drop-food coordinate] [:lost coordinate]]
 

@@ -65,19 +65,10 @@
          new-current (+ current magnitude)]
      (assoc-in db [:pheromones coordinate] {tick new-current}))))
 
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
  :move
- (fn [{:keys [db]} [_ old-coordinate new-coordinate new-facing]]
-   (let [new-db (move db old-coordinate new-coordinate new-facing)
-         tile-has-food? (pos? (food-at new-db new-coordinate))
-         {:keys [state]} (ant-at db old-coordinate)
-         moved? (nil? (ant-at new-db old-coordinate))
-         foraging? (= :foraging state)]
-     (merge
-      {:db new-db}
-      (when (and tile-has-food? moved? foraging?)
-        {:dispatch-n [[:grab-food new-coordinate]
-                      [:reverse new-coordinate]]})))))
+ (fn [db [_ old-coordinate new-coordinate new-facing]]
+   (move db old-coordinate new-coordinate new-facing)))
 
 (re-frame/reg-event-fx
  :reverse-move
