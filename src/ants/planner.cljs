@@ -83,12 +83,12 @@
       [[:reset coordinate]]
 
       (and (not lost?) (not over-colony?) (zero? steps-count))
-      [[:lost coordinate]]
+      [[:drop-food coordinate] [:lost coordinate]]
 
       (and (not lost?)
            (<= 2 stuck-count)
            (<= (rand-int max-steps) stuck-count))
-      [[:lost coordinate]]
+      [[:drop-food coordinate] [:lost coordinate]]
 
       (= state :reversed)
       [[:reverse-move coordinate]]

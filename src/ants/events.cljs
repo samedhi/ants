@@ -38,11 +38,10 @@
 
 (re-frame/reg-event-fx
  :lost
- (fn [{:keys [db]} [_ coordinate]]
-   {:db (-> db
-            (assoc-in [:ants coordinate :state] :lost)
-            (assoc-in [:ants coordinate :steps] []))
-    :dispatch-n [(when (-> db :ants (get coordinate) :has-food?) [:drop-food coordinate])]}))
+ (fn [db [_ coordinate]]
+   (-> db
+       (assoc-in [:ants coordinate :state] :lost)
+       (assoc-in [:ants coordinate :steps] []))))
 
 (defn tile-at [db root-key coordinate]
   (get-in db [root-key coordinate]))
@@ -52,6 +51,9 @@
 
 (defn food-at [db coordinate]
   (tile-at db :food coordinate))
+
+(defn colony-at? [db coordinate]
+  (-> db :entrences (contains? coordinate)))
 
 (re-frame/reg-event-db
  :drop-pheromone
@@ -85,7 +87,7 @@
          reverse-facing (config/facing->reverse-facing facing)
          new-db (move db old-coordinate coordinate reverse-facing)
          moved? (nil? (ant-at new-db old-coordinate))
-         over-colony (contains? (:entrences db) coordinate)]
+         over-colony (colony-at? db coordinate)]
      (merge
       {:db new-db
        :dispatch-n [(when (and moved? has-food?) [:drop-pheromone coordinate])
@@ -130,11 +132,14 @@
 (re-frame/reg-event-db
  :drop-food
  (fn [db [_ coordinate]]
-   (let [entrence? (-> db :entrences (contains? coordinate))]
-     (cond-> db
-       entrence?       (update-in [:colony-food] (fnil inc 0))
-       (not entrence?) (update-in [:food coordinate] (fnil inc 0))
-       true            (assoc-in [:ants coordinate :has-food?] false)))))
+   (let [colony? (colony-at? db coordinate)
+         {:keys [has-food?]} (ant-at db coordinate)]
+     (if has-food?
+       (cond-> db
+         colony?       (update-in [:colony-food] (fnil inc 0))
+         (not colony?) (update-in [:food coordinate] (fnil inc 0))
+         true          (assoc-in  [:ants coordinate :has-food?] false))
+       db))))
 
 (defn pow [n m]
   (js/Math.pow n m))
