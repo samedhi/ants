@@ -36,7 +36,7 @@
  (fn [_ _]
    config/default-db))
 
-(re-frame/reg-event-fx
+(re-frame/reg-event-db
  :lost
  (fn [db [_ coordinate]]
    (-> db
@@ -111,12 +111,22 @@
     (update db :food dissoc coordinate)
     db))
 
-(re-frame/reg-event-fx
+(defn not-pos? [n]
+  (-> n pos? not))
+
+(defn dec-and-dissoc-at-zero [m k]
+  (let [v-old (get m k)
+        v-new (dec v-old)]
+    (if (not-pos? v-new)
+      (dissoc m k)
+      (assoc m k v-new))))
+
+(re-frame/reg-event-db
  :grab-food
  (fn [db [_ coordinate]]
    (-> db
        (assoc-in [:ants coordinate :has-food?] true)
-       (update-in [:food coordinate] dec)
+       (update :food dec-and-dissoc-at-zero coordinate)
        (harvested-handler coordinate))))
 
 (re-frame/reg-event-db
