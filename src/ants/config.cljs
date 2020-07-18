@@ -8,6 +8,8 @@
 
 (def tile-base-weight 7)
 
+(def min-magnitude 64)
+
 (def breakpoints
   {:breakpoints [:mobile        768
                  :tablet        992

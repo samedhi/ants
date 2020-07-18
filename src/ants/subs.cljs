@@ -1,7 +1,8 @@
 (ns ants.subs
   (:require
    [re-frame.core :as re-frame]
-   [ants.util :as util]))
+   [ants.util :as util]
+   [ants.config :as config]))
 
 (enable-console-print!)
 
@@ -83,15 +84,17 @@
  :<- [:tick]
  :<- [:pheromones->food]
  :<- [:pheromones->forage]
- (fn [[tick pheromones->food pheromones>-forage]]
-   250))
+ (fn [[tick pheromones->food pheromones->forage]]
+   (->> (concat (vals pheromones->food) (vals pheromones->forage))
+        (map :magnitude)
+        (apply max))))
 
 (defn binary-divisions [n-max]
   (js/Math.pow
    2
    (js/Math.ceil
     (js/Math.log2
-     (max 8 n-max)))))
+     (max config/min-magnitude n-max)))))
 
 (re-frame/reg-sub
  :pheromone-divisions
