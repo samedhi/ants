@@ -28,13 +28,13 @@
       :reversed (update-in ants [coordinate :steps] pop)
       :foraging (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
-(defn drop-pheromone [db coordinate]
+(defn drop-pheromone [db coordinate force?]
   (let [{:keys [tick]} db
         {:keys [max-steps has-food?]} (ant-at db coordinate)
         magnitude (or max-steps 25)
         old-magnitude(-> db :pheromones :food (get coordinate) :magnitude)
         new-magnitude (+ old-magnitude magnitude)]
-    (if has-food?
+    (if (or has-food? force?)
       (assoc-in db [:pheromones :food coordinate] {:tick tick :magnitude new-magnitude})
       db)))
 
@@ -50,7 +50,7 @@
     (update-in db [:ants old-coordinate :stuck-count] (fnil inc 0))
     (-> db
         (update :ants move-ant old-coordinate new-coordinate new-facing)
-        (drop-pheromone new-coordinate))))
+        (drop-pheromone new-coordinate false))))
 
 (defn reset-ant [ant]
   (-> ant
@@ -90,7 +90,7 @@
 (re-frame/reg-event-db
  :drop-pheromone
  (fn [db [_ coordinate]]
-   (drop-pheromone db coordinate)))
+   (drop-pheromone db coordinate true)))
 
 (re-frame/reg-event-db
  :move
