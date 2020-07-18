@@ -141,20 +141,27 @@
          true          (assoc-in  [:ants coordinate :has-food?] false))
        db))))
 
-(defn decay-coordinate [new-tick coordinate->pheromone coordinate pheromone-map]
-  (let [{:keys [magnitude tick]} pheromone-map
-        new-pheromones {:tick new-tick :magnitude (pow magnitude config/decay-rate)}]
-    (if (<= 1.5 magnitude)
-      (assoc  coordinate->pheromone coordinate new-pheromones)
-      coordinate->pheromone)))
+(defn decay-coordinate [db kind coordinate]
+  (let [{new-tick :tick} db
+        {:keys [decay-rate]} (get-in db [:pheromones-meta kind])
+        {old-tick :tick old-magnitude :magnitude} (get-in db [:pheromones kind coordinate])
+        new-magnitude (->> (- new-tick old-tick)
+                           (pow decay-rate)
+                           (* old-magnitude))]
+    (if (<= 1.5 new-magnitude)
+      (assoc-in db [:pheromones kind coordinate] {:tick new-tick :magnitude new-magnitude})
+      (update-in db [:pheromones kind] dissoc coordinate))))
 
 (re-frame/reg-event-db
- :decay
+ :decay-all
  (fn [db _]
-   (let [{:keys [tick]} db
-         decay-coordinate-with-tick (partial decay-coordinate tick)
-         decay-all-coordinates #(reduce-kv decay-coordinate-with-tick {} %)]
-     (update-in db [:pheromones :food] decay-all-coordinates))))
+   (reduce
+    (fn [db [kind coordinate]]
+      (decay-coordinate db kind coordinate))
+    db
+    (for [[kind m] (-> db :pheromones)
+          [coordinate _] m]
+      [kind coordinate]))))
 
 (re-frame/reg-event-db
  :initialize-db
@@ -175,7 +182,7 @@
 
       :dispatch-n
       (concat
-       [[:decay]]
+       [[:decay-all]]
        (apply
         concat
         (map (fn [[coordinate ant]]

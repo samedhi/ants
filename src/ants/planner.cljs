@@ -3,8 +3,9 @@
    [ants.config :as config]
    [ants.subs :as subs]))
 
-(defn blind-options [coordinate old-facing]
-  (let [[x-old y-old] coordinate
+(defn blind-options [db coordinate old-facing]
+  (let [{:keys [tile-magnitude]} db
+        [x-old y-old] coordinate
         facing->coordinate-deltas (-> coordinate
                                       first
                                       even?
@@ -17,7 +18,8 @@
        :y (+ y-old y-delta)
        :facing facing
        :coordinate coordinate
-       :exponent (if (contains? high-priority-facing facing) 2 1)})))
+       :exponent (if (contains? high-priority-facing facing) 2 1)
+       :tile-magnitude tile-magnitude})))
 
 (defn remove-off-plane-coordinates [coordinates row-count column-count]
   (->> coordinates
@@ -31,9 +33,9 @@
   (js/Math.pow n m))
 
 (defn calculate-tile-weight [pheromones coordinate]
-  (let [{:keys [x y exponent]} coordinate
+  (let [{:keys [x y exponent tile-magnitude]} coordinate
         tile-pheromone-weight (subs/pheromone-sum pheromones [x y])
-        weight (+ config/tile-base-weight tile-pheromone-weight)
+        weight (+ tile-magnitude tile-pheromone-weight)
         exponented-weight (pow weight exponent)]
       (assoc coordinate :weight exponented-weight)))
 
@@ -52,8 +54,7 @@
 
 (defn move-options [db coordinate facing]
   (let [{:keys [row-count column-count ants pheromones]} db]
-    (some-> coordinate
-            (blind-options facing)
+    (some-> (blind-options db coordinate facing)
             (remove-off-plane-coordinates row-count column-count)
             (remove-collisions ants)
             (select-coordinate pheromones)

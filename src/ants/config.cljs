@@ -1,11 +1,5 @@
 (ns ants.config)
 
-(def pheromone-drop-amount 10)
-
-(def decay-rate 0.999)
-
-(def tile-base-weight 2)
-
 (def min-magnitude 256)
 
 (def breakpoints
@@ -62,11 +56,14 @@
                   :name "ant-1"
                   :has-food? false})
 
-(def default-db {:selected-tool :drop-ant
+(def default-db {:tile-magnitude 2
+                 :selected-tool :drop-ant
                  :tick 0
                  :row-count 15
                  :column-count 15
-                 :time-between-ticks 1;; milliseconds
+                 :time-between-ticks 1 ;; milliseconds
+                 :pheromones-meta {:food {:decay-rate 0.97 :magnitude 25}
+                                   :path {:decay-rate 0.99 :magnitude 5}}
                  :pheromones {}
                  :food {[10 10] 5000}
                  :entrences #{[4 4]}
