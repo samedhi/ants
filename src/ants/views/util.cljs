@@ -11,13 +11,19 @@
 
 (defn app-db-viewer []
   (let [db @(re-frame/subscribe [:pretty-print-db])
-        db-ant-seq @(re-frame/subscribe [:pretty-print-ants-seq])]
+        db-ant-seq @(re-frame/subscribe [:pretty-print-ants-seq])
+        ants @(re-frame/subscribe [:ants])]
     [mui/card
      {:style {:margin "1rem 0"}}
      [mui/card-content
       [mui/typography {:color "textSecondary"} "Content of app-db is:"]
       [code-block db]
-      [mui/typography {:color "textSecondary"} "Ants state (" (count db-ant-seq) ")"]
+      [mui/typography {:color "textSecondary"}
+       "Ants state ("
+       (count ants)
+       ":"
+       (->> ants vals (filter #(-> % :state (= :lost))) count)
+       ")"]
       [:div.ant-database-view
        (for [[i db-ant] (map-indexed vector db-ant-seq)]
          ^{:key i}
