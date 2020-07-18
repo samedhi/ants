@@ -32,10 +32,10 @@
   (let [{:keys [tick]} db
         {:keys [max-steps has-food?]} (ant-at db coordinate)
         magnitude (or max-steps 25)
-        current (-> db :pheromones (get coordinate) first second)
-        new-current (+ current magnitude)]
+        old-magnitude(-> db :pheromones :food (get coordinate) :magnitude)
+        new-magnitude (+ old-magnitude magnitude)]
     (if has-food?
-      (assoc-in db [:pheromones coordinate] {tick new-current})
+      (assoc-in db [:pheromones :food coordinate] {:tick tick :magnitude new-magnitude})
       db)))
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
@@ -74,19 +74,6 @@
 
 (defn pow [n m]
   (js/Math.pow n m))
-
-(defn decay-pheromone [tick pheromone]
-  (reduce-kv
-   (fn [m k v]
-     (if (<= v 1.1)
-       (dissoc m k)
-       (update m k pow config/decay-rate)))
-   pheromone
-   pheromone))
-
-(defn decay-coordinate [tick m coordinate pheromone]
-  (assoc m coordinate (decay-pheromone tick pheromone)))
-
 
 (re-frame/reg-event-db
  :initialize-db
@@ -154,11 +141,20 @@
          true          (assoc-in  [:ants coordinate :has-food?] false))
        db))))
 
+(defn decay-coordinate [new-tick coordinate->pheromone coordinate pheromone-map]
+  (let [{:keys [magnitude tick]} pheromone-map
+        new-pheromones {:tick new-tick :magnitude (pow magnitude config/decay-rate)}]
+    (if (<= 1.5 magnitude)
+      (assoc  coordinate->pheromone coordinate new-pheromones)
+      coordinate->pheromone)))
+
 (re-frame/reg-event-db
  :decay
  (fn [db _]
-   (let [{:keys [tick]} db]
-     (update db :pheromones #(reduce-kv (partial decay-coordinate tick) {} %)))))
+   (let [{:keys [tick]} db
+         decay-coordinate-with-tick (partial decay-coordinate tick)
+         decay-all-coordinates #(reduce-kv decay-coordinate-with-tick {} %)]
+     (update-in db [:pheromones :food] decay-all-coordinates))))
 
 (re-frame/reg-event-db
  :initialize-db

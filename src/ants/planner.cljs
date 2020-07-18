@@ -31,11 +31,13 @@
   (js/Math.pow n m))
 
 (defn calculate-tile-weight [pheromones coordinate]
-  (let [{:keys [x y exponent]} coordinate
+  ;; TODO: Fix this
+  #_(let [{:keys [x y exponent]} coordinate
         tile-pheromone-weight (subs/pheromone-sum pheromones [x y])
         weight (+ config/tile-base-weight tile-pheromone-weight)
         exponented-weight (pow weight exponent)]
-    (assoc coordinate :weight exponented-weight)))
+      (assoc coordinate :weight exponented-weight))
+  (assoc coordinate :weight 1))
 
 (defn select-coordinate [coordinates pheromones]
   (let [weighted-coordinates (map (partial calculate-tile-weight pheromones) coordinates)

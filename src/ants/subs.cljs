@@ -20,7 +20,7 @@
    (util/pprint
     (into (sorted-map)
           (-> db
-              (assoc :pheromones "...")
+              ;; (assoc :pheromones "...")
               (assoc :ants "..."))))))
 
 (re-frame/reg-sub
@@ -66,20 +66,25 @@
  :pheromones
  :pheromones)
 
-(def current-pheromone-max (atom 8))
+(re-frame/reg-sub
+ :pheromones->food
+ :<- [:pheromones]
+ (fn [pheromones]
+   (:food pheromones)))
+
+(re-frame/reg-sub
+ :pheromones->forage
+ :<- [:pheromones]
+ (fn [pheromones]
+   (:forage pheromones)))
 
 (re-frame/reg-sub
  :pheromones-max
  :<- [:tick]
- :<- [:pheromones]
- (fn [[tick pheromones] _]
-   (if (zero? (mod tick 10))
-     (some->> (vals pheromones)
-              (map vals)
-              (map #(apply + %))
-              (apply max)
-              (reset! current-pheromone-max))
-     @current-pheromone-max)))
+ :<- [:pheromones->food]
+ :<- [:pheromones->forage]
+ (fn [[tick pheromones->food pheromones>-forage]]
+   250))
 
 (defn binary-divisions [n-max]
   (js/Math.pow
@@ -94,19 +99,43 @@
  (fn [pheromones-max _]
    (binary-divisions pheromones-max)))
 
-(defn pheromone-sum [pheromones coordinate]
-  (if-let [m (get pheromones coordinate)]
-    (apply + (vals m))
-    0))
+(defn pheromone-magnitude [pheromones coordinate]
+  (-> pheromones
+      (get coordinate)
+      (:magnitude 0)))
+
+(re-frame/reg-sub
+ :pheromones->food->coordinate
+ :<- [:pheromones->food]
+ (fn [pheromones->food [_ coordinate]]
+   (pheromone-magnitude pheromones->food coordinate)))
+
+(re-frame/reg-sub
+ :pheromones->forage->coordinate
+ :<- [:pheromones->forage]
+ (fn [pheromones->forage [_ coordinate]]
+   (pheromone-magnitude pheromones->forage coordinate)))
+
+(defn pheromone-sum [pheromones->food pheromones->forage coordinate]
+  (+ (pheromone-magnitude pheromones->food coordinate)
+     (pheromone-magnitude pheromones->forage coordinate)))
+
+(re-frame/reg-sub
+ :pheromones-total-magnitude
+ (fn [[_ coordinate] _]
+   [(re-frame/subscribe [:pheromones->food->coordinate coordinate])
+    (re-frame/subscribe [:pheromones->forage->coordinate coordinate])])
+ (fn [[food-pheromones forage-pheromones] _]
+   (+ food-pheromones forage-pheromones)))
 
 (re-frame/reg-sub
  :pheromone-map
- :<- [:pheromones]
- :<- [:pheromone-divisions]
- (fn [[pheromones pheromone-divisions] [_ coordinate]]
-   (let [pheromone (pheromone-sum pheromones coordinate)]
-     {:pheromone (pheromone-sum pheromones coordinate)
-      :pheromone-opacity (/ pheromone pheromone-divisions)})))
+ (fn [[_ coordinate] _]
+   [(re-frame/subscribe [:pheromones-total-magnitude coordinate])
+    (re-frame/subscribe [:pheromone-divisions])])
+ (fn [[total-magnitude divisions] _]
+   {:pheromone total-magnitude
+    :pheromone-opacity (/ total-magnitude divisions)}))
 
 (re-frame/reg-sub
  :ant-at-tile
