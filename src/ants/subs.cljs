@@ -21,7 +21,7 @@
    (util/pprint
     (into (sorted-map)
           (-> db
-              ;; (assoc :pheromones "...")
+              (assoc :pheromones "...")
               (assoc :ants "..."))))))
 
 (re-frame/reg-sub
@@ -119,9 +119,9 @@
  (fn [pheromones->forage [_ coordinate]]
    (pheromone-magnitude pheromones->forage coordinate)))
 
-(defn pheromone-sum [pheromones->food pheromones->forage coordinate]
-  (+ (pheromone-magnitude pheromones->food coordinate)
-     (pheromone-magnitude pheromones->forage coordinate)))
+(defn pheromone-sum [pheromones coordinate]
+  (+ (pheromone-magnitude (:food pheromones) coordinate)
+     (pheromone-magnitude (:forage pheromones) coordinate)))
 
 (re-frame/reg-sub
  :pheromones-total-magnitude
