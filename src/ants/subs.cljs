@@ -87,7 +87,7 @@
  (fn [[tick pheromones->food pheromones->forage]]
    (->> (concat (vals pheromones->food) (vals pheromones->forage))
         (map :magnitude)
-        (apply max))))
+        (apply max 0))))
 
 (defn binary-divisions [n-max]
   (js/Math.pow
