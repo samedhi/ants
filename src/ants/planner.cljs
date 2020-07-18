@@ -83,7 +83,7 @@
       [[:drop-food coordinate] [:reset coordinate]]
 
       (and (not lost?) (not has-food?) over-food?)
-      [[:grab-food coordinate] [:reverse coordinate] [:drop-pheromone coordinate]]
+      [[:reverse coordinate] [:grab-food coordinate]]
 
       (and (not lost?) (not over-colony?) (zero? steps-count))
       [[:drop-food coordinate] [:lost coordinate]]

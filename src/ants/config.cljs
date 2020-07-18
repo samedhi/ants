@@ -2,13 +2,11 @@
 
 (def pheromone-drop-amount 10)
 
-(def decay-rate 0.97)
+(def decay-rate 0.999)
 
-(def max-pheromone 100)
+(def tile-base-weight 2)
 
-(def tile-base-weight 7)
-
-(def min-magnitude 64)
+(def min-magnitude 256)
 
 (def breakpoints
   {:breakpoints [:mobile        768

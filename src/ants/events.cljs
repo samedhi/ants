@@ -28,15 +28,19 @@
       :reversed (update-in ants [coordinate :steps] pop)
       :foraging (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
 
-(defn drop-pheromone [db coordinate force?]
+(defn drop-pheromone-type [db kind coordinate magnitude]
   (let [{:keys [tick]} db
-        {:keys [max-steps has-food?]} (ant-at db coordinate)
-        magnitude (or max-steps 25)
-        old-magnitude(-> db :pheromones :food (get coordinate) :magnitude)
+        old-magnitude (-> db :pheromones kind (get coordinate) :magnitude (or 0))
         new-magnitude (+ old-magnitude magnitude)]
-    (if (or has-food? force?)
-      (assoc-in db [:pheromones :food coordinate] {:tick tick :magnitude new-magnitude})
-      db)))
+    (assoc-in db [:pheromones kind coordinate] {:tick tick :magnitude new-magnitude})))
+
+(defn drop-pheromone [db coordinate]
+  (let [{:keys [tick]} db
+        {:keys [has-food? state]} (ant-at db coordinate)
+        foraging? (= :foraging state)]
+    (cond-> db
+      has-food? (drop-pheromone-type :food coordinate 25)
+      foraging? (drop-pheromone-type :path coordinate 5))))
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
@@ -50,7 +54,7 @@
     (update-in db [:ants old-coordinate :stuck-count] (fnil inc 0))
     (-> db
         (update :ants move-ant old-coordinate new-coordinate new-facing)
-        (drop-pheromone new-coordinate false))))
+        (drop-pheromone new-coordinate))))
 
 (defn reset-ant [ant]
   (-> ant
@@ -88,11 +92,6 @@
        (assoc-in [:ants coordinate :steps] []))))
 
 (re-frame/reg-event-db
- :drop-pheromone
- (fn [db [_ coordinate]]
-   (drop-pheromone db coordinate true)))
-
-(re-frame/reg-event-db
  :move
  (fn [db [_ old-coordinate new-coordinate new-facing]]
    (move db old-coordinate new-coordinate new-facing)))
@@ -127,7 +126,8 @@
    (-> db
        (assoc-in [:ants coordinate :has-food?] true)
        (update :food dec-and-dissoc-at-zero coordinate)
-       (harvested-handler coordinate))))
+       (harvested-handler coordinate)
+       (drop-pheromone coordinate))))
 
 (re-frame/reg-event-db
  :drop-food
@@ -175,7 +175,7 @@
 
       :dispatch-n
       (concat
-       (when (zero? (mod tick 10)) [[:decay]])
+       [[:decay]]
        (apply
         concat
         (map (fn [[coordinate ant]]
@@ -216,6 +216,16 @@
  :drop-100-food
  (fn [db [_ coordinate]]
    (update-in db [:food coordinate] (fnil + 0) 100)))
+
+(re-frame/reg-event-db
+ :drop-food-pheromone
+ (fn [db [_ coordinate]]
+   (drop-pheromone-type db :food coordinate 25)))
+
+(re-frame/reg-event-db
+ :drop-path-pheromone
+ (fn [db [_ coordinate]]
+   (drop-pheromone-type db :path coordinate 5)))
 
 (re-frame/reg-event-fx
  :consider-if-you-are-lost

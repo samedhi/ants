@@ -16,11 +16,12 @@
     :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
    {:tool :drop-100-food
     :image-map (assoc images/ant-walk-with-food :row 7 :column 7)}
-   {:tool :drop-pheromone
+   {:tool :drop-food-pheromone
+    :image-map images/eyedropper}
+   {:tool :drop-path-pheromone
     :image-map images/eyedropper}])
 
 (defn tool-button [tool-map]
-
   (let [{:keys [tool image-map text]} tool-map
         selected-tool @(re-frame/subscribe [:selected-tool])]
     [:div.button
