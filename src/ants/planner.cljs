@@ -27,7 +27,7 @@
         rand-weight (-> sum-weights last rand-int)]
     (loop [[co & co-rest] coordinate-options
            [sw & sw-rest] sum-weights]
-      (if (<= rand-weight sw)
+      (if (< rand-weight sw)
         co
         (recur co-rest sw-rest)))))
 
