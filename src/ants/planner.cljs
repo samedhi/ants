@@ -60,6 +60,7 @@
         {:keys [max-steps steps has-food?
                 stuck-count state facing state] :as ant} (get ants coordinate)
         lost? (= state :lost)
+        reversed? (= state :reversed)
         over-colony? (contains? entrences coordinate)
         over-food? (contains? food coordinate)
         steps-count (count steps)]
@@ -67,23 +68,11 @@
       (and over-colony? (not= state :foraging))
       [[:drop-food coordinate] [:reset coordinate]]
 
-      (and (not lost?) (not has-food?) over-food?)
+      (and (not has-food?) over-food?)
       [[:reverse coordinate] [:grab-food coordinate]]
 
-      ;; (and (not lost?) (not over-colony?) (zero? steps-count))
-      ;; [[:drop-food coordinate] [:lost coordinate]]
-
-      ;; (and (not lost?)
-      ;;      (<= 2 stuck-count)
-      ;;      (<= (rand-int max-steps) stuck-count))
-      ;; [[:drop-food coordinate] [:lost coordinate]]
-
-      ;; (= state :reversed)
-      ;; [[:reverse-move coordinate]]
-
-      ;; (and (not lost?) (<= max-steps steps-count))
-      ;; [[:reverse coordinate]]
-      )))
+      (and (not lost?) (not reversed?) (<= max-steps steps-count))
+      [[:reverse coordinate]])))
 
 (defn events [db coordinate ant]
   (let [{:keys [facing]} ant]
