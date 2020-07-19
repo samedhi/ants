@@ -8,13 +8,18 @@
         [x-old y-old] old-coordinate
         facing->coordinate-deltas (-> x-old
                                       even?
-                                      config/even-row?->facing->coordinate-delta)]
+                                      config/even-row?->facing->coordinate-delta)
+        {food-pheromones :food path-pheromones :path} pheromones
+        {:keys [state]} (-> db :ants (get old-coordinate))]
     (for [new-facing (config/facing->potentials old-facing)
           :let [[x-delta y-delta] (facing->coordinate-deltas new-facing)
                 new-coordinate [(mod (+ x-old x-delta) row-count)
                                 (mod (+ y-old y-delta) column-count)]
-                tile-pheromone-weight (subs/pheromone-sum pheromones new-coordinate)
-                weight (+ tile-magnitude tile-pheromone-weight)]]
+                food-magnitude (subs/pheromone-magnitude food-pheromones new-coordinate)
+                path-magnitude (subs/pheromone-magnitude path-pheromones new-coordinate)
+                weight (if (= state :foraging)
+                         (+ tile-magnitude food-magnitude path-magnitude)
+                         (+ tile-magnitude path-magnitude))]]
       {:old-coordinate old-coordinate
        :new-coordinate new-coordinate
        :old-facing old-facing
@@ -38,7 +43,7 @@
 (defn move-actions [db coordinate facing]
   (let [{:keys [row-count column-count ants pheromones]} db]
     (some-> (coordinate-options db coordinate facing)
-            seq
+            seq ;; NOTE: Used for short circuit
             select-coordinate-option
             move-option->event
             vector)))
@@ -65,19 +70,20 @@
       (and (not lost?) (not has-food?) over-food?)
       [[:reverse coordinate] [:grab-food coordinate]]
 
-      (and (not lost?) (not over-colony?) (zero? steps-count))
-      [[:drop-food coordinate] [:lost coordinate]]
+      ;; (and (not lost?) (not over-colony?) (zero? steps-count))
+      ;; [[:drop-food coordinate] [:lost coordinate]]
 
-      (and (not lost?)
-           (<= 2 stuck-count)
-           (<= (rand-int max-steps) stuck-count))
-      [[:drop-food coordinate] [:lost coordinate]]
+      ;; (and (not lost?)
+      ;;      (<= 2 stuck-count)
+      ;;      (<= (rand-int max-steps) stuck-count))
+      ;; [[:drop-food coordinate] [:lost coordinate]]
 
-      (= state :reversed)
-      [[:reverse-move coordinate]]
+      ;; (= state :reversed)
+      ;; [[:reverse-move coordinate]]
 
-      (and (not lost?) (<= max-steps steps-count))
-      [[:reverse coordinate]])))
+      ;; (and (not lost?) (<= max-steps steps-count))
+      ;; [[:reverse coordinate]]
+      )))
 
 (defn events [db coordinate ant]
   (let [{:keys [facing]} ant]
