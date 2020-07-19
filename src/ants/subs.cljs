@@ -119,10 +119,6 @@
  (fn [pheromones->path [_ coordinate]]
    (pheromone-magnitude pheromones->path coordinate)))
 
-(defn pheromone-sum [pheromones coordinate]
-  (+ (pheromone-magnitude (:food pheromones) coordinate)
-     (pheromone-magnitude (:path pheromones) coordinate)))
-
 (re-frame/reg-sub
  :pheromones-total-magnitude
  (fn [[_ coordinate] _]
