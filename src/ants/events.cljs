@@ -19,14 +19,10 @@
   (-> db :entrences (contains? coordinate)))
 
 (defn modify-steps [ants coordinate]
-  (let [{:keys [state steps] :as ant} (get ants coordinate)
-        new-ant (as-> ant $
-                  (select-keys $ [:facing])
-                  (assoc $ :coordinate coordinate))]
-    (case state
-      :lost ants
-      :reversed (update-in ants [coordinate :steps] pop)
-      :foraging (update-in ants [coordinate :steps] (fnil conj []) new-ant))))
+  (let [{:keys [state]} (get ants coordinate)]
+    (if (= state :foraging)
+      (update-in ants [coordinate :steps] (fnil conj #{}) coordinate)
+      ants)))
 
 (defn drop-pheromone-type [db kind coordinate]
   (let [{:keys [tick]} db
@@ -39,10 +35,7 @@
   (let [{:keys [tick]} db
         {:keys [has-food? state steps]} (ant-at db coordinate)
         foraging? (= :foraging state)
-        set-steps-coordinates (->> steps
-                                   (map :coordinate)
-                                   set)
-        cycle? (contains? set-steps-coordinates coordinate)]
+        cycle? (contains? steps coordinate)]
     (cond-> db
       has-food?
       (drop-pheromone-type :food coordinate)
@@ -66,7 +59,7 @@
 
 (defn reset-ant [ant]
   (-> ant
-      (assoc :state :foraging :steps [] :stuck-count 0)
+      (assoc :state :foraging :steps #{} :stuck-count 0)
       (update :facing config/facing->reverse-facing)))
 
 (defn harvested-handler [db coordinate]
