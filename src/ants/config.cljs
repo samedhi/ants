@@ -37,19 +37,19 @@
    :west [:southwest :west :northwest]
    :northwest [:west :northwest :northeast]})
 
-(def even-row->facing->coordinate-delta
-  {:even {:northeast [-1 1]
+(def even-row?->facing->coordinate-delta
+  {true  {:northeast [-1 1]
           :east [0 1]
           :southeast [1 1]
           :southwest [1 0]
           :west [0 -1]
           :northwest [-1 0]}
-   :odd {:northeast [-1 0]
-         :east [0 1]
-         :southeast [1 0]
-         :southwest [1 -1]
-         :west [0 -1]
-         :northwest [-1 -1]}})
+   false {:northeast [-1 0]
+          :east [0 1]
+          :southeast [1 0]
+          :southwest [1 -1]
+          :west [0 -1]
+          :northwest [-1 -1]}})
 
 (def default-ant {:facing :northeast
                   :max-steps 30

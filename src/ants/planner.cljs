@@ -3,75 +3,54 @@
    [ants.config :as config]
    [ants.subs :as subs]))
 
-(defn blind-options [db coordinate old-facing]
-  (let [{:keys [tile-magnitude]} db
-        [x-old y-old] coordinate
-        facing->coordinate-deltas (-> coordinate
-                                      first
+(defn coordinate-options [db old-coordinate old-facing]
+  (let [{:keys [tile-magnitude row-count column-count pheromones]} db
+        [x-old y-old] old-coordinate
+        facing->coordinate-deltas (-> x-old
                                       even?
-                                      {true :even false :odd}
-                                      config/even-row->facing->coordinate-delta)
-        high-priority-facing (set (config/facing->potentials old-facing))]
-    (for [facing config/facings
-          :let [[x-delta y-delta] (facing->coordinate-deltas facing)]]
-      {:x (+ x-old x-delta)
-       :y (+ y-old y-delta)
-       :facing facing
-       :coordinate coordinate
-       :exponent (if (contains? high-priority-facing facing) 2 1)
-       :tile-magnitude tile-magnitude})))
+                                      config/even-row?->facing->coordinate-delta)]
+    (for [new-facing (config/facing->potentials old-facing)
+          :let [[x-delta y-delta] (facing->coordinate-deltas new-facing)
+                new-coordinate [(mod (+ x-old x-delta) row-count)
+                                (mod (+ y-old y-delta) column-count)]
+                tile-pheromone-weight (subs/pheromone-sum pheromones new-coordinate)
+                weight (+ tile-magnitude tile-pheromone-weight)]]
+      {:old-coordinate old-coordinate
+       :new-coordinate new-coordinate
+       :old-facing old-facing
+       :new-facing new-facing
+       :weight weight})))
 
-(defn remove-off-plane-coordinates [coordinates row-count column-count]
-  (->> coordinates
-       (filter #(< -1 (:x %) row-count))
-       (filter #(< -1 (:y %) column-count))))
+(defn select-coordinate-option [coordinate-options]
+  (let [weights (map :weight coordinate-options)
+        sum-weights (rest (reductions + 0 weights))
+        rand-weight (-> sum-weights last rand-int)]
+    (loop [[co & co-rest] coordinate-options
+           [sw & sw-rest] sum-weights]
+      (if (<= rand-weight sw)
+        co
+        (recur co-rest sw-rest)))))
 
-(defn remove-collisions [coordinates ants]
-  (remove #(contains? ants [(:x %) (:y %)]) coordinates))
+(defn move-option->event [{:keys [old-coordinate new-coordinate new-facing]}]
+  ;; TODO: I don't really think you need a new-facing here, derive it in delta.
+  [:move old-coordinate new-coordinate new-facing])
 
-(defn pow [n m]
-  (js/Math.pow n m))
-
-(defn calculate-tile-weight [pheromones coordinate]
-  (let [{:keys [x y exponent tile-magnitude]} coordinate
-        tile-pheromone-weight (subs/pheromone-sum pheromones [x y])
-        weight (+ tile-magnitude tile-pheromone-weight)
-        exponented-weight (pow weight exponent)]
-      (assoc coordinate :weight exponented-weight)))
-
-(defn select-coordinate [coordinates pheromones]
-  (let [weighted-coordinates (map (partial calculate-tile-weight pheromones) coordinates)
-        sums (map :weight weighted-coordinates)
-        lookups (rest (reductions + 0 sums))
-        sum-weighted-coordinates (map #(assoc %1 :sum-weight %2) weighted-coordinates lookups)
-        lookups-sum (apply + sums)
-        n (rand-int lookups-sum)
-        selected (first (drop-while #(<= (:sum-weight %) n) sum-weighted-coordinates))]
-    selected))
-
-(defn move-option->event [{:keys [x y facing coordinate] :as move-option}]
-  [:move coordinate [x y] facing])
-
-(defn move-options [db coordinate facing]
+(defn move-actions [db coordinate facing]
   (let [{:keys [row-count column-count ants pheromones]} db]
-    (some-> (blind-options db coordinate facing)
-            (remove-off-plane-coordinates row-count column-count)
-            (remove-collisions ants)
-            (select-coordinate pheromones)
+    (some-> (coordinate-options db coordinate facing)
+            seq
+            select-coordinate-option
             move-option->event
             vector)))
 
-(defn rotate-options [coordinate facing]
+(defn rotate-actions [coordinate facing]
   (let [[left _ right] (config/facing->potentials facing)]
+    ;; TODO: Why don't we just pass in :left & :right as arguments, details in delta.
     (if (zero? (rand-int 2))
       [[:rotate coordinate left]]
       [[:rotate coordinate right]])))
 
-(defn println-pass [o]
-  (println o)
-  o)
-
-(defn pre-special-actions [db coordinate]
+(defn special-actions [db coordinate]
   (let [{:keys [ants food entrences]} db
         {:keys [max-steps steps has-food?
                 stuck-count state facing state] :as ant} (get ants coordinate)
@@ -102,6 +81,6 @@
 
 (defn events [db coordinate ant]
   (let [{:keys [facing]} ant]
-    (or (pre-special-actions db coordinate)
-        (move-options db coordinate facing)
-        (rotate-options coordinate facing))))
+    (or (special-actions db coordinate)
+        (move-actions db coordinate facing)
+        (rotate-actions coordinate facing))))
