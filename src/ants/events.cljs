@@ -244,3 +244,8 @@
      (when (<= i 0)
        (println :consider-if-you-are-lost-fired!)
        {:dispatch [:lost coordinate]}))))
+
+(re-frame/reg-event-db
+ :merge-db
+ (fn [db [_ merge-db]]
+   (merge db merge-db)))
