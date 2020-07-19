@@ -37,11 +37,18 @@
 
 (defn drop-pheromone [db coordinate]
   (let [{:keys [tick]} db
-        {:keys [has-food? state]} (ant-at db coordinate)
-        foraging? (= :foraging state)]
+        {:keys [has-food? state steps]} (ant-at db coordinate)
+        foraging? (= :foraging state)
+        set-steps-coordinates (->> steps
+                                   (map :coordinate)
+                                   set)
+        cycle? (contains? set-steps-coordinates coordinate)]
     (cond-> db
-      has-food? (drop-pheromone-type :food coordinate)
-      foraging? (drop-pheromone-type :path coordinate))))
+      has-food?
+      (drop-pheromone-type :food coordinate)
+
+      (and foraging? (not cycle?))
+      (drop-pheromone-type :path coordinate))))
 
 (defn move-ant [ants old-coordinate new-coordinate new-facing]
   (-> ants
