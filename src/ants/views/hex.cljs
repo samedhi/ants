@@ -10,26 +10,32 @@
 (defn tile [coordinate]
   (let [tile-state @(re-frame/subscribe [:tile-state coordinate])
         {:keys [facing entrence? food has-food?
-                pheromone pheromone-opacity] :as state} tile-state]
+                food-pheromone food-pheromone-opacity
+                path-pheromone path-pheromone-opacity] :as state} tile-state]
     [:div {:class :column
            :on-click #(re-frame/dispatch [:tile-clicked coordinate])}
      [:li
       [:div {:class (conj [:hexagon] (when (pos? food) :food))}
        [:div {:style {:position :absolute
                       :width "100%"
-                      :height "100%"}}
-        [:div {:style {:position :absolute
-                       :width "100%"
-                       :height "100%"
-                       :background-color :red
-                       :opacity (if (pos? food) 0 pheromone-opacity)}}]
-        [:div {:style {:position :absolute
-                       :width "100%"
-                       :height "25%"
-                       :display :flex
-                       :align-items :flex-end
-                       :justify-content :center}}
-         [mui/typography (.toFixed pheromone 2)]]]
+                      :height "100%"
+                      :display :flex
+                      :align-items :center
+                      :justify-content :center
+                      :flex-direction :column}}
+        [mui/typography (.toFixed food-pheromone 2)]
+        [mui/typography (.toFixed path-pheromone 2)]]
+       [:div {:style {:position :absolute
+                      :width "100%"
+                      :height "50%"
+                      :background-color :red
+                      :opacity (if (pos? food) 0 food-pheromone-opacity)}}]
+       [:div {:style {:position :absolute
+                      :top "50%"
+                      :width "100%"
+                      :height "100%"
+                      :background-color :blue
+                      :opacity (if (pos? food) 0 path-pheromone-opacity)}}]
        (when entrence?
          [:div {:style {:position :absolute
                         :width "100%"
@@ -42,6 +48,7 @@
                         :display :flex
                         :align-items :center
                         :justify-content :center}}
+          ;; [views.util/image images/mound]
           [mui/typography {:variant :h4} food]])
        (when facing
          (let [[x y] coordinate

@@ -74,16 +74,16 @@
    (:food pheromones)))
 
 (re-frame/reg-sub
- :pheromones->forage
+ :pheromones->path
  :<- [:pheromones]
  (fn [pheromones]
-   (:forage pheromones)))
+   (:path pheromones)))
 
 (re-frame/reg-sub
  :pheromones-max
  :<- [:tick]
  :<- [:pheromones->food]
- :<- [:pheromones->forage]
+ :<- [:pheromones->path]
  (fn [[tick pheromones->food pheromones->forage]]
    (->> (concat (vals pheromones->food) (vals pheromones->forage))
         (map :magnitude)
@@ -114,31 +114,34 @@
    (pheromone-magnitude pheromones->food coordinate)))
 
 (re-frame/reg-sub
- :pheromones->forage->coordinate
- :<- [:pheromones->forage]
- (fn [pheromones->forage [_ coordinate]]
-   (pheromone-magnitude pheromones->forage coordinate)))
+ :pheromones->path->coordinate
+ :<- [:pheromones->path]
+ (fn [pheromones->path [_ coordinate]]
+   (pheromone-magnitude pheromones->path coordinate)))
 
 (defn pheromone-sum [pheromones coordinate]
   (+ (pheromone-magnitude (:food pheromones) coordinate)
-     (pheromone-magnitude (:forage pheromones) coordinate)))
+     (pheromone-magnitude (:path pheromones) coordinate)))
 
 (re-frame/reg-sub
  :pheromones-total-magnitude
  (fn [[_ coordinate] _]
    [(re-frame/subscribe [:pheromones->food->coordinate coordinate])
-    (re-frame/subscribe [:pheromones->forage->coordinate coordinate])])
- (fn [[food-pheromones forage-pheromones] _]
-   (+ food-pheromones forage-pheromones)))
+    (re-frame/subscribe [:pheromones->path->coordinate coordinate])])
+ (fn [[food-pheromone path-pheromone] _]
+   (+ food-pheromone path-pheromone)))
 
 (re-frame/reg-sub
  :pheromone-map
  (fn [[_ coordinate] _]
-   [(re-frame/subscribe [:pheromones-total-magnitude coordinate])
+   [(re-frame/subscribe [:pheromones->food->coordinate coordinate])
+    (re-frame/subscribe [:pheromones->path->coordinate coordinate])
     (re-frame/subscribe [:pheromone-divisions])])
- (fn [[total-magnitude divisions] _]
-   {:pheromone total-magnitude
-    :pheromone-opacity (/ total-magnitude divisions)}))
+ (fn [[food-pheromone path-pheromone divisions] _]
+   {:food-pheromone food-pheromone
+    :path-pheromone path-pheromone
+    :food-pheromone-opacity (/ food-pheromone divisions)
+    :path-pheromone-opacity (/ path-pheromone divisions)}))
 
 (re-frame/reg-sub
  :ant-at-tile
