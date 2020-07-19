@@ -1,4 +1,5 @@
-(ns ants.config)
+(ns ants.config
+  (:require [re-frame.core :as re-frame]))
 
 (def min-magnitude 256)
 
@@ -56,15 +57,17 @@
                   :name "ant-1"
                   :has-food? false})
 
-(def default-db {:tile-magnitude 2
+(def default-db {:tile-magnitude 1
                  :selected-tool :drop-ant
                  :tick 0
-                 :row-count 15
-                 :column-count 15
-                 :time-between-ticks 1 ;; milliseconds
-                 :pheromones-meta {:food {:decay-rate 0.97 :magnitude 25}
+                 :row-count 5
+                 :column-count 5
+                 :time-between-ticks 1000 ;; milliseconds
+                 :pheromones-meta {:food {:decay-rate 0.97 :magnitude 100}
                                    :path {:decay-rate 0.99 :magnitude 5}}
                  :pheromones {}
-                 :food {[10 10] 5000}
-                 :entrences #{[4 4]}
-                 :ants {[4 4] default-ant}})
+                 :food {[3 3] 5000}
+                 :entrences #{[1 1]}
+                 :ants {[1 1] default-ant}})
+
+(re-frame/dispatch [:merge-db (dissoc default-db :tick :pheromones :food :entrences :ants)])
