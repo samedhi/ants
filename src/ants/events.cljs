@@ -178,12 +178,14 @@
 (re-frame/reg-event-fx
  :tick
  (fn [{:keys [db]} [_ work-complete-chan]]
-   (let [{:keys [tick] :as new-db} (update db :tick inc)]
+   (let [{:keys [tick entrences food] :as new-db} (update db :tick inc)]
      {:db new-db
 
       :dispatch-n
       (concat
        [[:decay-all]]
+       (for [coordinate entrences] [:drop-path-pheromone coordinate])
+       (for [coordinate (keys food)] [:drop-food-pheromone coordinate])
        (apply
         concat
         (map (fn [[coordinate ant]]
@@ -234,16 +236,6 @@
  :drop-path-pheromone
  (fn [db [_ coordinate]]
    (drop-pheromone-type db :path coordinate)))
-
-(re-frame/reg-event-fx
- :consider-if-you-are-lost
- (fn [{:keys [db]} [_ coordinate]]
-   (let [{:keys [stuck-count max-steps]} (ant-at db coordinate)
-         i (-> max-steps (- stuck-count) rand-int)]
-     (println :consider-if-you-are-lost coordinate stuck-count max-steps i)
-     (when (<= i 0)
-       (println :consider-if-you-are-lost-fired!)
-       {:dispatch [:lost coordinate]}))))
 
 (re-frame/reg-event-db
  :merge-db
