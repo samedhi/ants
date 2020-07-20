@@ -16,15 +16,16 @@
            :on-click #(re-frame/dispatch [:tile-clicked coordinate])}
      [:li
       [:div {:class (conj [:hexagon] (when (pos? food) :food))}
-       [:div {:style {:position :absolute
-                      :width "100%"
-                      :height "100%"
-                      :display :flex
-                      :align-items :center
-                      :justify-content :center
-                      :flex-direction :column}}
-        [mui/typography (.toFixed food-pheromone 2)]
-        [mui/typography (.toFixed path-pheromone 2)]]
+       (when (and (not (pos? food)) (not entrence?))
+         [:div {:style {:position :absolute
+                        :width "100%"
+                        :height "100%"
+                        :display :flex
+                        :align-items :center
+                        :justify-content :center
+                        :flex-direction :column}}
+          [mui/typography (.toFixed food-pheromone 2)]
+          [mui/typography (.toFixed path-pheromone 2)]])
        [:div {:style {:position :absolute
                       :width "100%"
                       :height "50%"

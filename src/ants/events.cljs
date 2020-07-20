@@ -31,14 +31,24 @@
         new-magnitude (+ old-magnitude magnitude)]
     (assoc-in db [:pheromones kind coordinate] {:tick tick :magnitude new-magnitude})))
 
+(defn drop-food-pheromone [db coordinate]
+  (let [{:keys [pheromones]} db
+        {food-pheromones :food path-pheromones :path} pheromones
+        {food-magnitude :magnitude} (get food-pheromones coordinate)
+        {path-magnitude :magnitude} (get path-pheromones coordinate)]
+    (if (< food-magnitude (* 10 path-magnitude))
+      (drop-pheromone-type db :food coordinate)
+      db)))
+
 (defn drop-pheromone [db coordinate]
   (let [{:keys [tick]} db
         {:keys [has-food? state steps]} (ant-at db coordinate)
+        {:keys [magnitude]} (-> db :pheromones :path (get coordinate))
         foraging? (= :foraging state)
         cycle? (contains? steps coordinate)]
     (cond-> db
       has-food?
-      (drop-pheromone-type :food coordinate)
+      (drop-food-pheromone coordinate)
 
       (and foraging? (not cycle?))
       (drop-pheromone-type :path coordinate))))
@@ -127,8 +137,7 @@
    (-> db
        (assoc-in [:ants coordinate :has-food?] true)
        (update :food dec-and-dissoc-at-zero coordinate)
-       (harvested-handler coordinate)
-       (drop-pheromone coordinate))))
+       (harvested-handler coordinate))))
 
 (re-frame/reg-event-db
  :drop-food
@@ -184,8 +193,6 @@
       :dispatch-n
       (concat
        [[:decay-all]]
-       (for [coordinate entrences] [:drop-path-pheromone coordinate])
-       (for [coordinate (keys food)] [:drop-food-pheromone coordinate])
        (apply
         concat
         (map (fn [[coordinate ant]]
